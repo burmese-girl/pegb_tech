@@ -1,0 +1,367 @@
+{% extends "user_login/base.html"%}
+{% load i18n %}
+{% comment %} {% load static from staticfiles %} {% endcomment %}
+{% load static %}
+{% load bootstrap %}
+{% block title %}
+	{% trans "Shopping Cart" %}
+{% endblock %}
+{% block head%}
+    <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css' %}">
+<!--        <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css.map' %}">-->
+    <link rel="stylesheet" type="text/css" href="{% static 'pegb/css/main_menu.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width:480px)"
+          href="{% static 'pegb/css/mobile.css' %}">
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery-1.11.2.min.js"></script>-->
+    <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+    <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+    <script src="/static/pegb/js/jquery-ui.min.js"></script>
+    <script>
+         function UpdateQtyInStorage(key, updateQty){
+           var product = JSON.parse(localStorage.getItem(key))['product'];
+           var price=JSON.parse(localStorage.getItem(key))['price'];
+           var currency = JSON.parse(localStorage.getItem(key))['currency'];
+           var itemcode = JSON.parse(localStorage.getItem(key))['itemcode'];
+           var image_tag =JSON.parse(localStorage.getItem(key))['image_tag'];
+           var qty = updateQty;
+           localStorage.setItem(key, JSON.stringify({'product':product,'price':price,'qty':qty,'image_tag':image_tag,'currency':currency,'itemcode':itemcode}));
+
+        }
+
+        function addQty(key) {
+            console.log("Add Click :::",key+'add');
+            var inputQty= document.getElementById('Input'+key);
+            var currentValue = inputQty.value ? parseInt(inputQty.value) : 0;
+            var newValue = currentValue  + 1;
+            inputQty.value=newValue;
+            //to update qty in localstorage
+           UpdateQtyInStorage(key,inputQty.value);
+           var amount = document.getElementById(key+'amount');
+           console.log("Amount :", amount);
+           var price =JSON.parse(localStorage.getItem(key))['price'];
+           var standard_price=price.replace(/,/,"");
+           standard_price = parseFloat(standard_price.replace(/,/g, ''));
+           amount.innerHTML = inputQty.value * standard_price;
+        }
+
+         function subtractQty(key) {
+            console.log("Subtract Clicks:::",key+'sub');
+            var inputQty= document.getElementById('Input'+key);
+            var currentValue = inputQty.value ? parseInt(inputQty.value) : 0;
+            console.log("Current Value",currentValue);
+            if (currentValue > parseInt(1)){
+                var newValue = currentValue  - 1;
+                inputQty.value=newValue;
+                //to update qty in localstorage
+                UpdateQtyInStorage(key,inputQty.value);
+                var amount = document.getElementById(key+'amount');
+                var price =JSON.parse(localStorage.getItem(key))['price'];
+                var standard_price=price.replace(/,/,"");
+                standard_price = parseFloat(standard_price.replace(/,/g, ''));
+                amount.innerHTML = inputQty.value * standard_price;
+            }
+            else {
+                alert("Please choose at least one item.")
+            }
+
+        }
+
+       function qtyChange(key){
+           console.log("Quantity Change",'Input'+key);
+           var inputQty= document.getElementById('Input'+key);
+           var currentValue = inputQty.value ? parseInt(inputQty.value) : 0;
+           if (isNaN(inputQty.value )) {
+                inputQty.value = parseInt(1);
+                alert("Enter number only!");
+           }
+           if (currentValue < parseInt(1)){
+                inputQty.value = parseInt(1);
+                alert("Please choose at least one item.");
+           }
+           //to update qty in localstorage
+           UpdateQtyInStorage(key,inputQty.value);
+           var amount = document.getElementById(key+'amount');
+           var price =JSON.parse(localStorage.getItem(key))['price'];
+           var standard_price=price.replace(/,/,"");
+           standard_price = parseFloat(standard_price.replace(/,/g, ''));
+           amount.innerHTML = inputQty.value * standard_price;
+
+       }
+
+       function deleteItem(product) {
+          console.log("Remove Item :::", product);
+          localStorage.removeItem(product);
+          doShowAll();
+       }
+
+        function ClearAll() {
+            localStorage.clear();
+            doShowAll();
+        }
+
+       $( window ).load(function() {
+          doShowAll();
+         //if(window.location.href.indexOf('?reloaded') === -1)
+         //{
+         //   window.location.href = window.location.href + "?reloaded=true";
+         //}
+       });
+
+       function load_qty(cart_list){
+           for (i = 0; i <= localStorage.length-1; i++){
+            key = localStorage.key(i);
+            var qty=document.getElementById("{{product.id}}")
+            //qty.value = localStorage.getItem(key);
+            //console.log("qty value from local storage ::::",qty.value);
+            //if (key == qty.innerHtml){}
+
+            //for (j=0;j<=cart_list.length ; j++)
+            //{
+                //console.log("Form load products:::::::",cart_list[j]);
+            //}
+
+          }
+       }
+
+        function CheckBrowser() {
+            if ('localStorage' in window && window['localStorage'] !== null) {
+                // We can use localStorage object to store data.
+                return true;
+            } else {
+                    return false;
+            }
+        }
+
+       function doShowAll() {
+        if (CheckBrowser()) {
+
+            var key = "";
+            var list = "<tr style='border: 2px solid #f05323;'><th class='cartlist-header'>{% trans 'Photo' %}</th><th class='cartlist-header'>{% trans 'Product' %}</th><th class='cartlist-header'> {% trans 'Price' %} </th><th class='cartlist-header'>{% trans 'Quantity' %}</th><th class='cartlist-header'>{% trans 'Amount' %}</th><th class='cartlist-header'>{% trans 'Remove' %}</th></tr>\n";
+            //var list = "";
+            var i = 0;
+            //For a more advanced feature, you can set a cap on max items in the cart.
+            for (i = 0; i <= localStorage.length-1; i++) {
+                key = localStorage.key(i);
+                var product = JSON.parse(localStorage.getItem(key))['product'];
+                var price = JSON.parse(localStorage.getItem(key))['price']; 
+                var qty = JSON.parse(localStorage.getItem(key))['qty'];
+                var image_tag = JSON.parse(localStorage.getItem(key))['image_tag'];
+                var currency = JSON.parse(localStorage.getItem(key))['currency'];
+                var qtySubId=key+"sub";
+                var qtyAddId=key+"add";
+                var inputQty="Input"+key;
+                var standard_price=price.replace(/,/,"");                
+                standard_price = parseFloat(standard_price.replace(/,/g, ''));             
+                qty = parseInt(qty);
+                //console.log("Product Quantity :::: ",qty);
+                //console.log("Standard Price ::::", standard_price);
+                list += "<tr class='cart-list'><td style='width: 200px;'><img src='" +image_tag+"' style='width:160px;height:160px' /img></td>\n<td style='width: 200px;'>"
+                        + product + " </td>\n<td style='width: 200px;'>"+ standard_price + "  "+ currency + " "  +"</td>\n<td style='width: 200px;'><button id='"+qtySubId+"' type='button' name='qty-neg' onclick='subtractQty("+key+")' class='btn-qtynew' title='Subtract'>-</button><input type='text' id='"+inputQty+"' name='qty-text' onchange='qtyChange("+key+")' style='border-radius: 8px;text-align: center;' title='Count'  value='"+ qty +"'><button id='"+qtyAddId+"' type='button' name='qty-neg' onclick='addQty("+key+")' class='btn-qtynew' title='Add'>+</button></td>\n<td style='width: 170px;'><label id='"+key+"amount'>"+(standard_price)*(qty) + "</label></td><td style='width: 170px;'> <button onclick='deleteItem("+key+")' type='button' class='btn-delete' id='"+key+"' title='Delete' ><img alt='Delete icon' src='/static/pegb/images/delete-sign.png' class='icon-remove'></button></td></tr>\n";
+            }
+            //If no item exists in the cart.
+            if (list == "<tr><th>Item</th><th>Value</th></tr>\n") {
+                list += "<tr><td><i>empty</i></td>\n<td><i>empty</i></td></tr>\n";
+            }
+            //Bind the data to HTML table.
+            //You can use jQuery, too.
+            document.getElementById('list').innerHTML = list;
+        } else {
+            alert('Cannot save shopping list as your browser does not support HTML 5');
+        }
+    }
+
+    </script>
+
+       <!--start ajax request-->
+    <script type="text/javascript">
+        function order_request(){
+            var catid;
+            var baseUrl="http://127.0.0.1:8000/";
+            console.log("CartID :::::","{{product.id}}");
+            console.log("data list in order request :::::",localStorage);
+            $.ajax(
+            {
+                type:"GET",
+                url: "/load-order/",
+                data: { product :JSON.stringify(localStorage)},
+                dataType: 'json',
+                contentType: 'application/json',
+                error: function (xhr) {
+                    console.log("Errors:",xhr);
+
+                },
+                success: function( data ){
+                    alert("url::::",data);
+                    location.assign(baseUrl+"cart");
+                },
+
+             })
+
+             }
+    </script>
+     <!--ended ajax request-->
+
+    <!--fix exceed observer -->
+    <script>
+        // target selector
+        const selector = 'body';
+        // max time to wait (in seconds)
+        const maxSeconds = 10;
+        // time spend (in seconds)
+        let timer = 1;
+
+        // refresh every second
+        const refreshId = setInterval(() => {
+          // check if dom exists
+          if (document.querySelector(selector)) {
+            // clear interval
+            clearInterval(refreshId);
+            // call observer
+            observer();
+          }
+          // check if timeout
+          if (timer++ >= maxSeconds) {
+            clearInterval(refreshId);
+            console.log('Error: Max allowed seconds exceeds.');
+          }
+        }, 1000);
+
+        function observer() {
+          console.log('Hello, I am from observer!');
+        }
+    </script>
+    <!--fix exceed observer-->
+</head>
+{% endblock %}
+{% block body %}
+    <body class="product-bg" onload="doShowAll()" >
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bbottom-10 main-header" style="margin-bottom: 15px;">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+             <a href="/">
+                <img class="img-login" src="/static/pegb/images/logo.png">
+             </a>
+           <div class="company-font"> Shopping Cart</div>
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 mag-top-100 mag-top-20"></div>
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 content-header" >
+       <div  class="col-md-2 col-sm-0 col-xs-0"  style="width:5%">
+        </div>
+        <div  class="col-md-2 col-sm-4 col-xs-4 "  style="width:17%"><a href="/" class="menu-font" >
+            <!--<img src="/static/pegb/images/home-icon.png" style="width: 38px;height: 28px;border-radius: 2px;box-shadow: rgb(3, 33, 51) 0px 0px 1px 0px">-->
+            {% trans "Home" %}
+            </a>
+        </div>
+        <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:17%"><a href="/" class="menu-font" >
+            {% trans "Customer Care" %}
+            </a>
+        </div>
+        <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"> <a class="menu-font" href="/user/login/"> {% trans "Login" %}</a></div>
+        <!--<div class="col-md-2 col-sm-2 col-xs-2 "  style="width:%"><a class="menu-font" href="/user/register/">{% trans "Signup" %}</a></div>-->
+        <div class="col-md-2 col-sm-4 col-xs-4"  style="width:15%"><a class="menu-font" href="/products/">{% trans "   Mart" %}</a></div>
+        <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a class="menu-font" href="/products/">{% trans "Promotions" %}</a></div>
+         <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+            {% trans "Free Delivery" %}
+            </a>
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10 " >
+        <div class="container cart-width pad-top-bottom-10" >
+        <form method="post" name="FormCart" action="" class="form-cart" autocomplete="off" >
+            {% csrf_token %}
+
+               <div class="col-md-10 col-sm-6 col-xs-6 pad-top-bottom-10"></div>
+              <!-- <div class="col-md-2 col-sm-3 col-xs-3 pad-top-bottom-10">
+                <button type="button" class="btn-login" style="font-size:25px;" value="Clear" onclick="ClearAll()">
+                Clear all
+                </button>
+               </div>-->
+
+              <!--Shopping List-->
+            <div id="items_table">
+               <!-- <h2>Shopping List</h2>-->
+                <table id="list" width="100%"></table>
+                <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-0"></div>
+            <!--ended Shopping List-->
+
+            <!--    Product List-->
+            <!--<div class="col-md-12 col-sm-12 col-xs-12" name="productList">
+                &lt;!&ndash;        <h3>Product List</h3>&ndash;&gt;
+
+                {% if cart_list %}
+                <ul>
+                    {% for product in cart_list %}
+
+                    <li class="col-md-12 col-sm-12 col-xs-12 cart-list" name="orderList">
+                        &lt;!&ndash;{{ product.product_image }}&ndash;&gt;
+                        <div class="col-md-3 col-sm-3 col-xs-12">
+                            &lt;!&ndash;<img class="img-product" src='{{ product.product_image }}' />&ndash;&gt;
+                            {{ product.image_tag }}
+                           &lt;!&ndash; <img alt="image" class="img-product"
+                                 src="/static/login/images/upload/products/apple.png"/>&ndash;&gt;
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12 pad-top-bottom-20">
+                            <label style="font-weight:bold;text-align:left;">{{ product.name }}</label>
+                                <label style="font-weight:bold;text-align:left;">
+                                    {{ product.id }}</label>
+
+                                <label style="text-align:left;font-size: 13px;">{{ product.details }}</label>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12 pad-top-bottom-20">
+                            <label>Weight: {{product.weight}}   &nbsp;{{product.uom}}</label>
+                            <br/>
+                             <br/>
+                            <label>Price: {{product.selling_price}} {{product.currency}}</label>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-3 pad-top-bottom-10 qtyBox" >
+                            <div style="padding: 9px 2px;float:left;width:24%;">
+                                <label>Quantity:</label>
+                            </div>
+                            <div style="padding: 0px 0px;float:left;width: 20%;margin-left: 0px;">
+                                <button type="button" name="qty-neg" onclick="subtractQty()" class="btn-qty"
+                                        title="Subtract">-
+                                </button>
+                            </div>
+                            <div style="padding: 2px 2px;float:left;width:35%;">
+                                <input type="text" id="{{product.id}}" name="qty-text" onchange="qtyChange()"
+                                       style="border-radius: 8px;text-align: center;" title="Count" class="" value="{{product.cart_quantity}}">
+                            </div>
+                            <div style="padding: 0px 0px;float:left;width: 20%;">
+                                <button type="button" name="qty-pos" onclick="addQty()" title="Add" class="btn-qty">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <br/><br/>
+                {% else %}
+               &lt;!&ndash; <p>There are no products in the your shopping cart.</p>&ndash;&gt;
+                {% endif %}
+
+            </div>-->
+            <!--        ended product list-->
+            <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <!--<a href="/order/" class="btn-order"  onclick="order_request()">Checkout</a>-->
+                   <a href="/" class="btn-order">{% trans "Continue Shopping" %}</a>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <!--<a href="/order/" class="btn-order"  onclick="order_request()">Checkout</a>-->
+                   <a href="/order/" class="btn-checkout">{% trans "Checkout" %}</a>
+                </div>
+            </div>
+            </div>
+        </form>
+        </div>
+    </div>
+</body>
+{% endblock %}

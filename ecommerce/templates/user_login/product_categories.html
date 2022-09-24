@@ -1,0 +1,92 @@
+{% extends "user_login/base.html"%}
+{% load i18n %}
+{% comment %} {% load static from staticfiles %} {% endcomment %}
+{% load static %}
+{% load bootstrap %}
+{% block title %}
+	{% trans "Product Categories" %}
+{% endblock %}
+{% block body %}
+    <body class="product-bg" >
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bbottom-10 main-header" style="margin-bottom: 15px;">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <img class="img-login" src="/static/pegb/images/logo.png"></img>
+            <div class="company-font">{% trans "Product Categories" %}</div>
+        </div>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 mag-top-100 mag-top-20"></div>
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 content-header " >
+              <div  class="col-md-2 col-sm-0 col-xs-0"  style="width:9%">
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a href="/" class="menu-font" >
+                    <!--<img src="/static/login/images/home-icon.png" style="width: 38px;height: 28px;border-radius: 2px;box-shadow: rgb(3, 33, 51) 0px 0px 1px 0px">-->
+                    {% trans "Home" %}
+                    </a>
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+                    {% trans "Customer Care" %}
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"> <a class="menu-font" href="/user/login/"> {% trans "Login" %}</a></div>
+                <!--<div class="col-md-2 col-sm-2 col-xs-2 "  style="width:%"><a class="menu-font" href="/user/register/">{% trans "Signup" %}</a></div>-->
+                <div class="col-md-2 col-sm-4 col-xs-4"  style="width:15%"><a class="menu-font" href="/products/">{% trans "Pegb Mart" %}</a></div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a class="menu-font" href="/products/">{% trans "Promotions" %}</a></div>
+                 <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+                    {% trans "Free Delivery" %}
+                    </a>
+                </div>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 mag-top-20">
+            <label ><a href="/">{% trans "Category Name:" %}</a> {{category_name}}</label>
+        <div class="container searchProductWidth" >
+        <form method="post" action="" class="formProductCategories" autocomplete="off">
+            {% csrf_token %}
+
+            <!--    Product List-->
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <!--        <h3>Product List</h3>-->
+                {% if product_list %}
+                <ul>
+                    {% for product in product_list %}
+                    <li class="col-md-4 col-sm-4 col-xs-12 pad-top-bottom-20 product-list">
+                        <!--{{ product.product_image }}-->
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <!--<img class="img-product" src='{{ product.product_image }}' />-->
+                            <a href="/product-details/{{product.id}}">
+                            {{ product.image_tag }}
+                            </a>
+
+                           <!-- <img alt="image" class="img-product"
+                                 src="/static/login/images/upload/products/apple.png"/>-->
+                        </div>
+                        <!--<div class="col-md-12 col-sm-12 col-xs-12">
+                            <a href="/user/login/" class="btn-cart">Add to Card</a>
+                        </div>-->
+
+                        <div class="col-md-12 col-sm-12 col-xs-12 ">
+                            <a href="/product-details/{{product.id}}">
+                            <label style="font-weight:bold;">{{ product.name }}</label>
+                            </a>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label>{{product.selling_price}} {{product.currency}}</label>
+                        </div>
+
+                        <br/>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <br/><br/>
+                {% else %}
+                <p>There are no products in the page.</p>
+                {% endif %}
+
+            </div>
+            <!--        ended product list-->
+
+        </form>
+        </div>
+        </div>
+
+    </body>
+{% endblock %}

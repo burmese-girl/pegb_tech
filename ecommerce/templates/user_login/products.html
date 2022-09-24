@@ -1,0 +1,193 @@
+{% load i18n %}
+{% load static %}
+{% load bootstrap %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'pegb/css/main_menu.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width:480px)"
+          href="{% static 'pegb/css/mobile.css' %}">
+    <link rel="shortcut icon" href="{% static '/pegb/images/favicon.ico' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--    for datepicker -->
+    <link rel="stylesheet" href="/static/pegb/css/overcast/jquery-ui.css">
+    <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+    <script src="/static/pegb/js/jquery-ui.min.js"></script>
+    <title>Products</title>
+</head>
+<body>
+    <form method="post" action="" class="form-product" autocomplete="off">
+        {% csrf_token %}
+        <div class="col-md-12 col-sm-12 col-xs-12 main-header" style=";margin-bottom: 15px;">
+            <div class="col-md-9 col-sm-4 col-xs-4 ">
+                <img class="img-login" src="/static/pegb/images/logo.png"/>
+                <div class="company-font">Pegb Technology</div>
+            </div>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 mag-top-100 mag-top-20" >
+
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10" >
+                     <div class="col-md-2 col-sm-4 col-xs-4">
+                                <div class="categMenu">
+                                  <button class="categBtn">
+                                      <span>Categories</span>
+                                      <img class="img-categ" src="/static/pegb/images/dropdown2.png">
+                                  </button>
+                                  <div class="dropdown-content">
+                                      {% for category in categ_list %}
+                                      {% if category.name == "frozen_foods" %}
+                                        <a href="/product-categ/{{category.id}}">frozen foods</a>
+                                      {% endif %}
+                                      {% if category.name == "fresh_produce" %}
+                                        <a href="/product-categ/{{category.id}}">fresh produce</a>
+                                      {% endif %}
+                                      {% endfor %}
+                                  </div>
+                                </div>
+
+                    </div>
+                    <div class="col-md-8 col-sm-8 col-xs-8">
+                            <div class="" style="margin-left: 0px;">
+                                <input class="search-box" id="search-input" name="search" placeholder='Search product' type="search" >
+                                 <button type="submit" name="btn-search" class="col-md-2 col-sm-2 col-xs-2 btn-search" value="Search" >Search"</button>
+                            </div>
+                    </div>
+                    <div class="col-md-2 col-sm-0 col-xs-0 mobile-pad" >
+                    <!--<a class="menu-cart" id="menu-cart" onclick="cart_request()" href="/cart/" style="text-decoration:none;">-->
+                    <a class="menu-cart" id="menu-cart" href="/cart/" style="text-decoration:none;">
+                        <img src="/static/pegb/images/cart.png" class="cart-img" style="width: 90%;height: 100%;"/>
+                        <!--Your Cart-->
+                    </a>
+                    <div >
+                       <span id="count" class="count">0</span>
+                    </div>
+                    </div>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 content-header" >
+                <div  class="col-md-2 col-sm-0 col-xs-0"  style="width:5%">
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 "  style="width:17%"><a href="/" class="menu-font" >
+                    <!--<img src="/static/login/images/home-icon.png" style="width: 38px;height: 28px;border-radius: 2px;box-shadow: rgb(3, 33, 51) 0px 0px 1px 0px">-->
+                    Home
+                    </a>
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:17%"><a href="/" class="menu-font" >
+                    Customer Care
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"> <a class="menu-font" href="/user/login/"> Login</a></div>
+
+                <div class="col-md-2 col-sm-4 col-xs-4"  style="width:15%"><a class="menu-font" href="/products/">Pegb Shop</a></div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a class="menu-font" href="/products/">Promotions</a></div>
+                 <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+                    Free Delivery
+                    </a>
+                </div>
+
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="container product-width mag-top-0 mag-top-20" >
+            <!--First category Pane-->
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% if frozen_foods %}
+                <div class="col-md-4 col-sm-4 col-xs-12 product-category">
+
+                    <div class="col-md-9 col-sm-7 col-xs-7 text-left">
+                    <u> frozen foods</u>
+                    </div>
+                        <div class="col-md-3 col-sm-5 col-xs-5">
+                    {% if frozen_foods.0.category_id.name == "frozen_foods" %}
+                        <a class='btn-viewAll'style="text-decoration: none;color: #fff;" href="/product-categ/{{computers.0.category_id.id}}">View All< ></a>
+                    {% endif %}
+                        </div>
+                    <!--{{product_list.category_id.name}}-->
+                </div>
+                <ul>
+                    {% for product in frozen_foods %}
+                    {% if product.category_id.name == "frozen_foods" %}
+                    <li class="col-md-4 col-sm-4 col-xs-12 pad-top-bottom-20 product-list">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <!--<img class="img-product" src='{{ product.product_image }}' />-->
+                            <a href="/product-details/{{product.id}}">{{ product.image_tag }}</a>
+
+                            <!-- <img alt="image" class="img-product"
+                                    src="/static/login/images/upload/products/apple.png"/>-->
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 ">
+                            <a href="/product-details/{{product.id}}">
+                            <label style="font-weight:bold;">{{ product.name }}</label>
+                            </a>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label>{{product.selling_price}} {{product.currency}}</label>
+                        </div>
+                        <br/>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                <br/><br/>
+                {% else %}
+                <p>There are no products in the page.</p>
+                {% endif %}
+
+            </div>
+            <!--Ended First Category -->
+            <!--Second Category Pane-->
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% if fresh_produce %}
+                <div class="col-md-4 col-sm-4 col-xs-12 product-category">
+                    <div class="col-md-0 col-sm-0 col-xs-0">
+                    </div>
+                    <div class="col-md-9 col-sm-7 col-xs-7 text-left">
+                    <u>fresh_produce</u>
+                    </div>
+                        <div class="col-md-3 col-sm-5 col-xs-5">
+                    {% if seafood.0.category_id.name == "fresh_produce" %}
+                        <a class='btn-viewAll'style="text-decoration: none;color: #fff;" href="/product-categ/{{seafood.0.category_id.id}}">View All< ></a>
+                    {% endif %}
+                        </div>
+                    <!-- {{product_list.category_id.name}}-->
+                </div>
+                <ul>
+                    {% for product in fresh_produce %}
+                    {% if product.category_id.name == "fresh_produce" %}
+                    <li class="col-md-4 col-sm-4 col-xs-12 pad-top-bottom-20 product-list">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <!--<img class="img-product" src='{{ product.product_image }}' />-->
+                            <a href="/product-details/{{product.id}}"> {{ product.image_tag }}</a>
+
+                            <!-- <img alt="image" class="img-product"
+                                    src="/static/login/images/upload/products/apple.png"/>-->
+                        </div>
+                        <!--<div class="col-md-12 col-sm-12 col-xs-12">
+                            <a href="/user/login/" class="btn-cart">Add to Card</a>
+                        </div>-->
+
+                        <div class="col-md-12 col-sm-12 col-xs-12 ">
+                            <a href="/product-details/{{product.id}}">
+                            <label style="font-weight:bold;">{{ product.name }}</label>
+                            </a>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label>{{product.selling_price}} {{product.currency}}</label>
+                        </div>
+                        <br/>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                <br/><br/>
+                {% else %}
+                <p>There are no products in the page.</p>
+                {% endif %}
+            </div>
+            <!--Ended Second Category -->
+            </div>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,118 @@
+{% extends "register/base.html"%}
+{% load i18n %}
+{% comment %} {% load static from staticfiles %} {% endcomment %}
+{% load static %}
+{% load bootstrap %}
+{% block title %}
+	{% trans "Order Confirm" %}
+{% endblock %}
+{% block head %}
+    <head>
+        <link rel="stylesheet" href="{% static 'login/css/bootstrap.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'login/css/main_menu.css' %}">
+        <link rel="stylesheet" type="text/css" media="screen and (max-device-width:480px)"
+              href="{% static 'login/css/mobile.css' %}">
+        <script src="/static/login/js/jquery-1.11.2.min.js"></script>
+        <script>
+              $( window ).load(function() {
+             //if(window.location.href.indexOf('?reloaded') === -1)
+             //{
+             //  window.location.href = window.location.href + "?reloaded=true";
+             //}
+             console.log("*** Order Success :: ",JSON.stringify(localStorage));
+             key = localStorage.key("response_text");
+             var order_no = JSON.parse(localStorage.getItem(key))['order_no'];
+             var total = JSON.parse(localStorage.getItem(key))['total'];
+             var deli_fee = JSON.parse(localStorage.getItem(key))['deli_fee'];
+             var sub_total = JSON.parse(localStorage.getItem(key))['sub_total'];
+             var tax = JSON.parse(localStorage.getItem(key))['tax'];
+             var discount = JSON.parse(localStorage.getItem(key))['discount'];
+             var customer_name = JSON.parse(localStorage.getItem(key))['customer_name'];
+             var customer_phone = JSON.parse(localStorage.getItem(key))['customer_phone'];
+             var customer_township = JSON.parse(localStorage.getItem(key))['customer_township'];
+             var customer_address = JSON.parse(localStorage.getItem(key))['customer_address'];
+             var payment_type = JSON.parse(localStorage.getItem(key))['payment_type'];
+             var banking_type = JSON.parse(localStorage.getItem(key))['banking_type'];
+
+             $('#order_no').text(order_no);
+             $('#total').text(total);
+             $('#sub_total').text(sub_total);
+             $('#tax').text(tax);
+             $('#discount').text(discount);
+             $('#deli_fee').text(deli_fee);
+             $('#customer_name').text(customer_name);
+             $('#customer_phone').text(customer_phone);
+             $('#customer_township').text(customer_township);
+             $('#customer_address').text(customer_address);
+             $('#payment_type').text(payment_type);
+             $('#banking_type').text(banking_type);
+             localStorage.removeItem("response_text");
+           });
+
+        </script>
+	</head>
+{% endblock %}
+{% block body %}
+	<body>
+         <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bbottom-10 main-header" style="margin-bottom: 0px;">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <img class="img-login" src="/static/login/images/logo.png"></img>
+                   <div class="company-font"> {% trans "Order Confirmed" %}</div>
+                </div>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12 page-header" >
+        </div>
+         <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 content-header margin-top-50" >
+               <div  class="col-md-2 col-sm-0 col-xs-0"  style="width:5%">
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 "  style="width:17%"><a href="/" class="menu-font" >
+                    <!--<img src="/static/login/images/home-icon.png" style="width: 38px;height: 28px;border-radius: 2px;box-shadow: rgb(3, 33, 51) 0px 0px 1px 0px">-->
+                    {% trans "Home" %}
+                    </a>
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:17%"><a href="/" class="menu-font" >
+                    {% trans "Customer Care" %}
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"> <a class="menu-font" href="/user/login/"> {% trans "Login" %}</a></div>
+                <!--<div class="col-md-2 col-sm-2 col-xs-2 "  style="width:%"><a class="menu-font" href="/user/register/">{% trans "Signup" %}</a></div>-->
+                <div class="col-md-2 col-sm-4 col-xs-4"  style="width:15%"><a class="menu-font" href="/products/">{% trans "   Mart" %}</a></div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a class="menu-font" href="/products/">{% trans "Promotions" %}</a></div>
+                 <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+                    {% trans "Free Delivery" %}
+                    </a>
+                </div>
+        </div>
+         <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+        <div class="container orderSuccessWidth" style="margin-top:0px;">
+            <form method="post" action="" class="formOrderSuccess" autocomplete="off">
+                <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                     <label style="padding-bottom:20px;font-weight:bold;">{% trans "Your order is confirmed." %}</label>
+                    <br/>
+                    <label>{% trans "Order No:" %} <span style="font-weight:bold;" id="order_no"></span></label>
+                    <label>{% trans "Customer Name:" %} <span style="font-weight:bold;" id="customer_name"></span></label>
+                    <label>{% trans "Customer Phone:" %} <span style="font-weight:bold;" id="customer_phone"></span></label>
+                    <label>{% trans "Customer Address:" %} <span style="font-weight:bold;" id="customer_address"></span>
+                        , <span style="font-weight:bold;" id="customer_township"></span></label>
+                    <label>{% trans "Sub Total :" %} <span style="font-weight:bold;" id="sub_total"></span></label>
+                    <label>{% trans "Discount :" %} <span style="font-weight:bold;" id="discount"></span></label>
+                    <label>{% trans "Tax :" %} <span style="font-weight:bold;" id="tax"></span></label>
+                    <label>{% trans "Deli Fee :" %} <span style="font-weight:bold;" id="deli_fee"></span></label>
+                    <label>{% trans "Total:" %} <span style="font-weight:bold;" id="total"></span></label>
+                    <label>{% trans "Payment Type:" %} <span style="font-weight:bold;" id="payment_type"></span></label>
+                    <label>{% trans "Online Payment Type:" %} <span style="font-weight:bold;" id="banking_type"></span></label>
+
+                    <br/><br/>
+                    <label>{% trans "Hope you enjoy shopping with us." %}</label>
+
+                </div>
+                 <div  class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                         <a href="/" class="menu-font" style="color:blue;text-decoration:underline;"> {% trans "Next Order?" %}</a>
+                 </div>
+            </form>
+
+        </div>
+         </div>
+    </body>
+{% endblock %}
+

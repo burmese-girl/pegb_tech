@@ -1,0 +1,97 @@
+{% load i18n %}
+{% comment %} {% load static from staticfiles %} {% endcomment %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'pegb/css/main_menu.css' %}">
+        <link rel="stylesheet" type="text/css" media="screen and (max-device-width:480px)"
+              href="{% static 'pegb/css/mobile.css' %}">
+        <link rel="shortcut icon" href="{% static '/pegb/images/favicon.ico' %}" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!--    for datepicker -->
+        <link rel="stylesheet" href="/static/pegb/css/overcast/jquery-ui.css">
+        <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+        <script src="/static/pegb/js/jquery-ui.min.js"></script>
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<!--        <script>-->
+<!--        $(function() {-->
+<!--            $('.datepicker').datepicker({-->
+<!--                shortYearCutoff: 1,-->
+<!--                changeMonth: true,-->
+<!--                changeYear: true,-->
+<!--                dateFormat: 'yy-mm-dd',-->
+<!--                maxDate: new Date(),-->
+<!--                yearRange: "1900:"-->
+<!--            });-->
+<!--          });-->
+
+
+<!--        </script>-->
+        <!-- ended datepicker-->
+
+		<title>{% block title %}{% endblock %}</title>
+
+		<link rel="shortcut icon" href="{% static '/pegb/images/favicon.ico' %}" />
+
+		{% block head %}{% endblock %}
+	</head>
+	<body>
+        {% block body %}
+		{% endblock %}
+
+		{% block script %}{% endblock %}
+
+	</body>
+
+    <div class="col-md-0 col-sm-12 col-xs-12 pad-top-bottom-20 mobileFooter" >
+                <div  class="col-md-0 col-sm-0 col-xs-0 ">
+                </div>
+                <div  class="col-md-0 col-sm-0 col-xs-3 pad-top-bottom-10"  style="width:30%"><a href="/" class="menu-font" >
+                    <img src="/static/pegb/images/home-icon2.png" style="width: 115px;height: 90px;border-radius: 2px;">
+                    </a>
+                </div>
+                <div  class="col-md-0 col-sm-0 col-xs-3 pad-top-bottom-10" style="width:28%"><a href="/" class="menu-font" >
+                    <img src="/static/pegb/images/categories.png" style="width:90px;height: 90px;border-radius: 2px;">
+                    </a>
+                </div>
+                <div class="col-md-0 col-sm-0 col-xs-3 pad-top-bottom-10"  style="width:28%">
+                    <a class="menu-font" href="/cart/">
+                        <img src="/static/pegb/images/cart.png" style="width: 115px;height: 90px;border-radius: 2px;">
+                    </a>
+                    <div >
+                       <span id="count" class="count">0</span>
+                    </div>
+                </div>
+
+                <div class="col-md-0 col-sm-0 col-xs-3 pad-top-bottom-10"  style="width:14%">
+                    <a class="menu-font" href="/user/login/">
+                        <img src="/static/pegb/images/account-logo.png" style="width: 90px;height: 90px;border-radius: 2px;">
+                    </a>
+                </div>
+
+    </div>
+
+	<div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10" style="background-color: ghostwhite;margin-top:40px;position: relative;z-index: 101;">
+
+    <div class="col-md-5 col-sm-5 col-xs-12">
+        <div class="footer-font pad-top-bottom-10">Contact Us</div>
+        <div class="footer-font pad-top-bottom-10">+95 9772446147</div>
+        <div class="footer-font pad-top-bottom-10"><a href="/">Python Dev Myanmar</a></div>
+    </div>
+    <div class="col-md-6 col-sm-5 col-xs-12">
+        <div class="footer-font pad-top-bottom-10" style="font-size: 12px;font-family: serif;">
+            Copyright © 2020 Pegb.com<br>
+
+        </div>
+
+    </div>
+    <div class="col-md-1 col-sm-2 col-xs-12">
+        <div class="footer-font pad-top-bottom-10">About Us</div>
+        <div class="footer-font pad-top-bottom-10">News</div>
+        <div class="footer-font pad-top-bottom-10">Career</div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,550 @@
+{% extends "user_login/base.html"%}
+{% load i18n %}
+{% comment %} {% load static from staticfiles %} {% endcomment %}
+{% load static %}
+{% load bootstrap %}
+{% block title %}
+	{% trans "Order Confirm" %}
+{% endblock %}
+{% block head %}
+    <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css' %}">
+    <!--<link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css.map' %}">-->
+    <link rel="stylesheet" type="text/css" href="{% static 'pegb/css/main_menu.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width:480px)" href="{% static 'pegb/css/mobile.css' %}">
+    <!--    for datepicker -->
+    <link rel="stylesheet" href="/static/pegb/css/overcast/jquery-ui.css">
+    <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+    <script src="/static/pegb/js/jquery-ui.min.js"></script>
+    <!--  calculate total by qty * price -->
+    <script >
+
+           $( window ).load(function() {
+              CalculateTotal();
+              //console.log("Loading Confirm Form :::", localStorage);
+              var banking_panel=localStorage.getItem("banking");
+              console.log("banking_panel  :::", banking_panel);
+              if (banking_panel !== null)
+              {
+                var banking_type=JSON.parse(localStorage.getItem("banking"))["banking_type"];
+                console.log("Banking Type ::", banking_type);
+                $('#banking-info')[0].style.display = "block";
+                $('#bank-detail')[0].style.display = "block";
+                //$('#kbz-bank')[0].style.display = "block";
+                $('#banking-upload')[0].style.display = "block";
+                $('input[name="banking_type"]:checked').val(banking_type);
+                var kbzBanking =  document.getElementById("kbz-bank");
+                var ayaBanking =  document.getElementById("aya-bank");
+                var cbBanking =  document.getElementById("cb-bank");
+                var wavePay =  document.getElementById("wave-pay");
+                var kbzPay =  document.getElementById("kbz-pay");
+                var cbPay =  document.getElementById("cb-pay");
+                var name =JSON.parse(localStorage.getItem("banking"))["name"];
+                var address=JSON.parse(localStorage.getItem("banking"))["address"];
+                var phone = JSON.parse(localStorage.getItem("banking"))["phone"];
+                var township = JSON.parse(localStorage.getItem("banking"))["township"];
+                $("#id_customer_address")[0].value=address;
+                $("#id_customer_township")[0].value=township;
+                $("#id_customer_phone")[0].value=phone;
+                $("#id_customer_name")[0].value=name;
+                if (banking_type == 'KBZ_Mobile') {
+                    //alert("You selected the KBZ mobile banking option");
+                    kbzBanking.style.display = "block";
+                     $('#id_banking_type_0')[0].checked = true ;
+                }
+                if (banking_type == 'AYA_Mobile') {
+                    //alert("You selected the AYA mobile banking option");
+                    ayaBanking.style.display = "block";
+                     $('#id_banking_type_1')[0].checked = true ;
+                }
+                if (banking_type == 'CB_Mobile') {
+                    //alert("You selected the CB mobile banking option");
+                    cbBanking.style.display = "block";
+                    $('#id_banking_type_2')[0].checked = true ;
+                }
+                if (banking_type == 'Wave_Money') {
+                    //alert("You selected the Wave Pay option");
+                    wavePay.style.display = "block";
+                    $('#id_banking_type_3')[0].checked = true ;
+                }
+                if (banking_type == 'KBZ_Pay') {
+                    //alert("You selected the KBZ pay option");
+                    kbzPay.style.display = "block";
+                    $('#id_banking_type_4')[0].checked = true ;
+                }
+                if (banking_type == 'CB_Pay') {
+                    //alert("You selected the CB Pay option");
+                    cbPay.style.display = "block";
+                    $('#id_banking_type_5')[0].checked = true;
+                }
+
+                localStorage.removeItem("banking");
+
+              }
+           });
+
+         function CheckBrowser() {
+                if ('localStorage' in window && window['localStorage'] !== null) {
+                    // We can use localStorage object to store data.
+                    return true;
+                } else {
+                        return false;
+                }
+            }
+
+        function CalculateTotal() {
+            if (CheckBrowser()) {
+                var key = "";var i = 0;
+                var tax = 0.05 ;subtotal = 0.0;total=0; var discount = 0;// 5% sales_tax discount 10%
+                for (i = 0; i <= localStorage.length-1; i++) {
+                    key = localStorage.key(i);
+                    console.log("Key ::::", key);
+                    if( key !== "banking"){
+                        var price = JSON.parse(localStorage.getItem(key))['price'];
+                        //var standard_price=price.replace(/,/,"");
+                        var standard_price = parseFloat(price.replace(/,/g, ''));
+                        var amount = (JSON.parse(localStorage.getItem(key))['qty'] * standard_price);
+                        subtotal += amount;
+                    }
+                }
+
+                tax = tax * subtotal;
+                discount = discount * subtotal;
+                total = subtotal + tax - discount;
+
+                var id_sub_total = document.getElementById('id_sub_total');
+                var id_discount = document.getElementById('id_discount');
+                var id_tax = document.getElementById('id_tax');
+                var id_deli_fee = document.getElementById('id_deli_fee');
+                var id_total = document.getElementById('id_total');
+                id_sub_total.value = subtotal;
+                id_discount.value = discount;
+                id_tax.value = tax;
+                id_deli_fee.value = 3000;
+                id_total.value = total+ parseInt(id_deli_fee.value);
+            }
+        }
+
+         function ClearAll() {
+                localStorage.clear();
+                 console.log("localStorage in ClearAll():::::::::",JSON.stringify(localStorage));
+         }
+
+
+
+    </script>
+    <script >
+        $(document).ready(function() {
+            $("#form").submit(function () {
+            var baseUrl="http://127.0.0.1:8000";
+            console.log("********* customer_name :::::",$( '#id_customer_name' )[0].value);
+            var name = $( '#id_customer_name' )[0].value;
+            var phone = $( '#id_customer_phone' )[0].value;
+            var address = $( '#id_customer_address' )[0].value;
+            var township = $( '#id_customer_township' )[0].value;
+            var sub_total = $( '#id_sub_total' )[0].value;
+            var discount = $( '#id_discount' )[0].value;
+            var tax = $( '#id_tax' )[0].value;
+            var deli_fee = $( '#id_deli_fee' )[0].value;
+            var total = $( '#id_total' )[0].value;
+            var payment_type = $('input[name="payment_type"]:checked').val();
+            var banking_type = $('input[name="banking_type"]:checked').val();
+            var image_upload=$('#uploaded_file_url')[0].innerHTML;
+            console.log("Payment Type ::::::",payment_type);
+            console.log("Banking Type ::::::",banking_type);
+            console.log("Banking Image ::::::",image_upload);
+            //alert("confirm ??? ");
+            var customer_data={'name': name , 'phone':phone, 'address':address, 'township':township,'total': total,'discount': discount, 'tax':tax, 'sub_total':sub_total,'deli_fee':deli_fee,'payment_type':payment_type,'banking_type':banking_type,'banking_image':image_upload};
+            var product_list = JSON.stringify(localStorage);
+            localStorage.clear();
+            localStorage.setItem("product_list", product_list);
+            localStorage.setItem("customer", JSON.stringify(customer_data));
+            console.log("Request Data :::: ",JSON.stringify(localStorage));
+                $.ajax({
+                  type: "POST",
+                  useDefaultXhrHeader: false,
+                  url: baseUrl+"/api/create-order/",
+                  data: JSON.stringify(localStorage),
+                  dataType: 'jsonp',
+                  crossDomain:false,
+                  contentType: 'application/json; charset=utf-8',
+                  beforeSend: function(xhr,settings){xhr.setRequestHeader("X-CSRFToken", '{{csrf_token}}');},
+                  success: function(html) {
+                    alert("Success");
+                  },
+                  error: function(xhr) {
+                    console.log("Xhr :::::::::::::",xhr);
+                    console.log("Response Text ::::", xhr.responseText);
+
+                    if (xhr.status !=  201){
+                        alert("fail");
+                    }
+                    if(xhr.status ==  201) {
+                     localStorage.setItem("response_text",xhr.responseText);
+                     window.location.assign("/confirmed/");
+                    }
+                  }
+                });
+                localStorage.removeItem("product_list");
+                localStorage.removeItem("customer");
+                return false;
+            });
+        });
+    </script>
+    <script>
+        $(function() {
+            //onchange payment_type
+            $('input:radio[name="payment_type"]').change(function() {
+                var banking =  document.getElementById("banking-info");
+                var bankingUpload =  document.getElementById("banking-upload");
+                var bank_detail = document.getElementById("bank-detail");
+                if ($(this).val() == 'Other_Payment') {
+                    //alert("You selected the banking type option");
+                    banking.style.display = "block";
+                    //bankingUpload.style.display = "block";
+                    //bank_detail.style.display = "block";
+                } else {
+                    banking.style.display = "none";
+                    bankingUpload.style.display = "none";
+                    bank_detail.style.display="none";
+                    //alert("You selected cash on deli option");
+                    $('#id_banking_type_0')[0].checked = false ;
+                    $('#id_banking_type_1')[0].checked = false ;
+                    $('#id_banking_type_2')[0].checked = false ;
+                    $('#id_banking_type_3')[0].checked = false ;
+                    $('#id_banking_type_4')[0].checked = false ;
+                    $('#id_banking_type_5')[0].checked = false;
+
+                    $('#kbz-bank')[0].style.display="none";
+                    $('#aya-bank')[0].style.display="none";
+                    $('#cb-bank')[0].style.display="none";
+                    $('#wave-pay')[0].style.display="none";
+                    $('#kbz-pay')[0].style.display="none";
+                    $('#cb-pay')[0].style.display="none";
+                }
+            });
+
+            //onchange banking_type
+            $('input:radio[name="banking_type"]').change(function() {
+                var banking =  document.getElementById("banking-info");
+                var bank_detail = document.getElementById("bank-detail");
+                var bankingUpload =  document.getElementById("banking-upload");
+                var kbzBanking =  document.getElementById("kbz-bank");
+                var ayaBanking =  document.getElementById("aya-bank");
+                var cbBanking =  document.getElementById("cb-bank");
+                var wavePay =  document.getElementById("wave-pay");
+                var kbzPay =  document.getElementById("kbz-pay");
+                var cbPay =  document.getElementById("cb-pay");
+                bank_detail.style.display = "block";
+                bankingUpload.style.display = "block";
+                ayaBanking.style.display = "none";
+                kbzBanking.style.display = "none";
+                cbBanking.style.display = "none";
+                wavePay.style.display = "none";
+                kbzPay.style.display = "none";
+                cbPay.style.display = "none";
+
+                if ($(this).val() == 'KBZ_Mobile') {
+                    //alert("You selected the KBZ mobile banking option");
+                    kbzBanking.style.display = "block";
+                }
+                if ($(this).val() == 'AYA_Mobile') {
+                    //alert("You selected the AYA mobile banking option");
+                    ayaBanking.style.display = "block";
+                }
+                if ($(this).val() == 'CB_Mobile') {
+                    //alert("You selected the CB mobile banking option");
+                    cbBanking.style.display = "block";
+                }
+                if ($(this).val() == 'Wave_Money') {
+                    //alert("You selected the Wave Pay option");
+                    wavePay.style.display = "block";
+                }
+                if ($(this).val() == 'KBZ_Pay') {
+                    //alert("You selected the KBZ pay option");
+                    kbzPay.style.display = "block";
+                }
+                if ($(this).val() == 'CB_Pay') {
+                    //alert("You selected the CB Pay option");
+                    cbPay.style.display = "block";
+                }
+            });
+            //ended banking_type onchange
+
+        });
+    </script>
+</head>
+{% endblock %}
+{% block body %}
+    <body class="login-bg">
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bbottom-10 main-header">
+         <div class="col-md-10 col-sm-9 col-xs-12">
+             <a href="/">
+                <img class="img-login" src="/static/pegb/images/logo.png">
+             </a>
+        <div class="company-font">Order Confirm</div>
+       </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 page-header" >
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 content-header margin-top-50" >
+           <div  class="col-md-2 col-sm-0 col-xs-0"  style="width:5%">
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 "  style="width:17%"><a href="/" class="menu-font" >
+                    <!--<img src="/static/pegb/images/home-icon.png" style="width: 38px;height: 28px;border-radius: 2px;box-shadow: rgb(3, 33, 51) 0px 0px 1px 0px">-->
+                    {% trans "Home" %}
+                    </a>
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:17%"><a href="/" class="menu-font" >
+                    {% trans "Customer Care" %}
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"> <a class="menu-font" href="/user/login/"> {% trans "Login" %}</a></div>
+                <!--<div class="col-md-2 col-sm-2 col-xs-2 "  style="width:%"><a class="menu-font" href="/user/register/">{% trans "Signup" %}</a></div>-->
+                <div class="col-md-2 col-sm-4 col-xs-4"  style="width:15%"><a class="menu-font" href="/products/">{% trans "   Mart" %}</a></div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a class="menu-font" href="/products/">{% trans "Promotions" %}</a></div>
+                 <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+                    {% trans "Free Delivery" %}
+                    </a>
+                </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-0">
+        <div class="container orderConfirmWidth">
+        <form  id="form" method="post" action="" class="formOrderConfirm" autocomplete="off">
+                {% csrf_token %}
+                <div class="divider-header">{% trans "Order confirm ?" %} </div>
+                <div class="col-md-6 col-sm-12 col-xs-12 pad-top-bottom-20">
+                    <!--<div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.order_no.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.order_no }}
+                            </div>
+                            <span class="validation">{{ form.total.errors|striptags }}</span>
+                        </div>
+                     </div>-->
+                      <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.customer_name.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.customer_name }}
+                            </div>
+                            <span class="validation">{{ form.customer_name.errors|striptags }}</span>
+                        </div>
+                     </div>
+
+                     <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.customer_phone.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.customer_phone }}
+                            </div>
+                            <span class="validation">{{ form.customer_phone.errors|striptags }}</span>
+                        </div>
+                     </div>
+
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.customer_address.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.customer_address }}
+                            </div>
+                            <span class="validation">{{ form.customer_address.errors|striptags }}</span>
+                        </div>
+                     </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.customer_township.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.customer_township }}
+                            </div>
+                            <span class="validation">{{ form.customer_township.errors|striptags }}</span>
+                        </div>
+                     </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.sub_total.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.sub_total }}
+                            </div>
+                            <span class="validation">{{ form.sub_total.errors|striptags }}</span>
+                        </div>
+                    </div>
+                     <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.discount.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.discount }}
+
+                            </div>
+                            <span class="validation">{{ form.discount.errors|striptags }}</span>
+                        </div>
+                     </div>
+
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.tax.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.tax }}
+                            </div>
+                            <span class="validation">{{ form.tax.errors|striptags }}</span>
+                        </div>
+                     </div>
+
+                     <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label  > {{ form.deli_fee.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.deli_fee }}
+                            </div>
+                            <span class="validation">{{ form.tax.errors|striptags }}</span>
+                        </div>
+                     </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                         <div class="controls">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label> {{ form.total.label_tag }}</label>
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-8">
+                                {{ form.total }}
+                            </div>
+                            <span class="validation">{{ form.total.errors|striptags }}</span>
+                        </div>
+                     </div>
+                    </div>
+                <div class="col-md-6 col-sm-12 col-xs-12 pad-top-bottom-20">
+                         <div class="controls">
+                             <label  style="font-weight: normal;color: gray;width:100%;text-align: center;">{% trans "Payment Type ?" %} </label><br/>
+                              {{ form.payment_type }}
+                         </div>
+                         <span class="validation">{{ form.payment_type.errors|striptags }}</span>
+                         <div class="col-md-12 col-sm-12 col-xs-12 banking-info" id="banking-info">
+                             <div class="controls">
+                                  {{ form.banking_type }}
+                             </div>
+                         </div>
+                          <div class="col-md-12 col-sm-12 col-xs-12 bank-detail" id="bank-detail">
+                                 <div class="controls">
+                                      {% trans "ငွေလွှဲထားသော ပြေစာကိုထည့်သွင်းပေးပါ။"   %}
+                                 </div>
+                          </div>
+                         <div class="col-md-12 col-sm-12 col-xs-12 kbz-bank" id="kbz-bank">
+                             <img class="bank-img" src="/static/pegb/images/kbz-bank.png">
+                             {% trans "KBZ Mobile Banking"   %}
+                             <!-- {{ form.banking_image }}-->
+<!--                              {% if uploaded_file_url %}-->
+<!--                                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+<!--                              {% endif %}-->
+                         </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 aya-bank" id="aya-bank">
+                            <img class="bank-img" src="/static/pegb/images/aya.png">
+                             {% trans "AYA Mobile Banking"   %}
+<!--                              {% if uploaded_file_url %}-->
+<!--                                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+<!--                              {% endif %}-->
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 cb-bank" id="cb-bank">
+                            <img class="bank-img" src="/static/pegb/images/cb-bank.png">
+                            {% trans "CB Mobile Banking"   %}
+<!--                            {% if uploaded_file_url %}-->
+<!--                                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+<!--                              {% endif %}-->
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 wave-pay" id="wave-pay">
+                            <img class="bank-img" src="/static/pegb/images/wave-mone.png">
+                            {% trans "Wave Money"   %}
+<!--                            {% if uploaded_file_url %}-->
+<!--                                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+<!--                              {% endif %}-->
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 kbz-pay" id="kbz-pay">
+                            <img class="bank-img" src="/static/pegb/images/kbz-pay.png">
+                            {% trans "KBZ Pay"   %}
+<!--                            {% if uploaded_file_url %}-->
+<!--                                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+<!--                              {% endif %}-->
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 cb-pay" id="cb-pay">
+                            <img class="bank-img" src="/static/pegb/images/cb-pay.png">
+                             {% trans "CB Pay"   %}
+<!--                            {% if uploaded_file_url %}-->
+<!--                                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+<!--                              {% endif %}-->
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                        <div class="col-md-12 col-sm-12">
+                            <div  class="col-md-4 col-sm-1 col-xs-12">
+                            </div>
+                            <div  class="col-md-4 col-sm-10 col-xs-10 ">
+                                 <input class="btn-order" type="submit"  id="btn-confirm-test" name="btn-confirm" value="Confirm" ></input>
+                                <!--<a href="/confirmed/" class="btn-register" name="btn-confirm" onclick="order_confirm()">Confirme</a>-->
+
+                            </div>
+                           <!--  <div  class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                           <p><a href="javascript:history.go(-1)">Go back ? </a></p>
+
+                            </div>-->
+                        </div>
+               </div>
+
+        </form>
+        <div class="col-md-12 col-sm-12 col-xs-12" >
+            <div id="banking-upload">
+            {% block content %}
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                  <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-0" >
+                    <p class="upload">File uploaded at:<a id="uploaded_file_url" href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+                    <input type="file" name="myfile" id="myfile">
+                    <button type="submit" class="btn-chat" onclick="upload_image()">Upload</button>
+                  </div>
+              </form>
+            {% if uploaded_file_url %}
+
+            {% endif %}
+            {% endblock %}
+            </div>
+            </div>
+    </div>
+    </div>
+    <script type="text/javascript">
+         function upload_image(){
+            var catid;
+            var baseUrl="http://127.0.0.1:8000/";
+            console.log("banking-info :::::",$("banking-info"));
+            //$('#banking-info')[0].style.display = "block";
+            //$('#bank-detail')[0].style.display = "block";
+            //$('#kbz-bank')[0].style.display = "block";
+            var banking_type=$('input[name="banking_type"]:checked').val();
+            var township =$("#id_customer_township")[0].value;
+            var name =$("#id_customer_name")[0].value;
+            var phone =$("#id_customer_phone")[0].value;
+            var address =$("#id_customer_address")[0].value;
+            var banking_data={"banking":true,"banking_type":banking_type, "name":name, 'township':township, 'address':address,'phone':phone}
+            localStorage.setItem("banking",JSON.stringify(banking_data));
+            console.log("CartID :::::","");
+            console.log("Upload Image in data list in order request :::::",localStorage);
+            }
+    </script>
+</body>
+{% endblock %}

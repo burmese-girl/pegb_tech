@@ -1,0 +1,455 @@
+{% extends "user_login/base.html"%}
+{% load i18n %}
+{% comment %} {% load static from staticfiles %} {% endcomment %}
+{% load static %}
+{% load bootstrap %}
+{% block title %}
+	{% trans "Product Details" %}
+{% endblock %}
+{% block head %}
+    <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'pegb/css/bootstrap.css.map' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'pegb/css/main_menu.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen and (max-device-width:480px)"
+          href="{% static 'pegb/css/mobile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+    <script src="/static/pegb/js/jquery-1.11.2.min.js"></script>
+    <!--        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>-->
+    <script src="/static/pegb/js/jquery-ui.min.js"></script>
+
+    <script>
+        function addClicks() {
+            var inputQty= document.getElementById("qty-text");
+            var currentValue = inputQty.value ? parseInt(inputQty.value) : 0;
+            var newValue = currentValue  + 1;
+            inputQty.value=newValue;
+        }
+
+         function subtractClicks() {
+            console.log("Subtract Clicks");
+            var inputQty= document.getElementById("qty-text");
+            var currentValue = inputQty.value ? parseInt(inputQty.value) : 0;
+            console.log("Current Value",currentValue);
+            if (currentValue > parseInt(1)){
+                var newValue = currentValue  - 1;
+                inputQty.value=newValue;
+            }
+            else {
+                alert("Please choose at least one item.")
+            }
+        }
+
+       function qtyChange(){
+           console.log("Quantity Change");
+           var inputQty= document.getElementById("qty-text");
+           var currentValue = inputQty.value ? parseInt(inputQty.value) : 0;
+           if (isNaN(inputQty.value )) {
+                inputQty.value = parseInt(1);
+                alert("Enter number only!");
+           }
+           if (currentValue < parseInt(1)){
+                inputQty.value = parseInt(1);
+                alert("Please choose at least one item.");
+           }
+       }
+
+    </script>
+    <script>
+        function click_ok(){
+            var cart =  document.getElementById("cart-popup");
+            cart.style.display = "none";
+        }
+        function addToCart(){
+            document.getElementById("btn-cart").blur();
+            var cart =  document.getElementById("cart-popup");
+            var count= document.getElementById("count");
+            var countValue = count.innerHTML ? parseInt(count.innerHTML) : 0;
+            var newValue = countValue  + 1;
+            count.innerHTML=newValue;
+            count.style.display = "block";
+            cart.style.display = "block";
+
+            var qty=document.getElementById("qty-text");
+            var price=document.getElementById("price").innerHTML;
+            var currency = document.getElementById("currency").innerHTML;
+            var product = document.getElementById("prodName").innerHTML;
+            var itemcode = document.getElementById("itemcode").innerHTML;
+            var image_tag = document.getElementById("image_tag").src;
+            localStorage.setItem("{{ product.id }}", JSON.stringify({'product':product,'IDN':{{ product.id }},'price':price,'qty':qty.value,'image_tag':image_tag,'currency':currency,'itemcode':itemcode}));
+            doShowAll();
+        }
+
+    </script>
+    <!--shopping cart js-->
+    <script>
+       $(window).load(function() {
+          doShowAll();
+       });
+        function CheckBrowser() {
+            if ('localStorage' in window && window['localStorage'] !== null) {
+                // We can use localStorage object to store data.
+                return true;
+            } else {
+                    return false;
+            }
+        }
+        function ModifyItem() {
+            alert("Modify");
+            var name1 = document.forms.ShoppingList.name.value;
+            var data1 = document.forms.ShoppingList.data.value;
+            console.log("name and data ;;;;;",name1+":"+data1);
+            //Check if name already exists.
+            //Check if key exists.
+             if (localStorage.getItem(name1) !=null)
+             {
+               //update
+               localStorage.setItem(name1,data1);
+               var new_info=localStorage.getItem(name1);
+               $("#data").val(new_info);
+             }
+
+            doShowAll();
+       }
+
+        function doShowAll() {
+        if (CheckBrowser()) {
+            var key = "";
+            var list = "<tr><th>Item</th><th>Value</th></tr>\n";
+            var i = 0;
+            //For a more advanced feature, you can set a cap on max items in the cart.
+            for (i = 0; i <= localStorage.length-1; i++) {
+                key = localStorage.key(i);
+                list += "<tr><td>" + key + "</td>\n<td>"
+                        + localStorage.getItem(key) + "</td></tr>\n";
+            }
+
+            //console.log("localStorage :::::::::",localStorage);
+            //If no item exists in the cart.
+            if (list == "<tr><th>Item</th><th>Value</th></tr>\n") {
+                list += "<tr><td><i>empty</i></td>\n<td><i>empty</i></td></tr>\n";
+            }
+            //Bind the data to HTML table.
+            //You can use jQuery, too.
+            //document.getElementById('list').innerHTML = list;
+        } else {
+            alert('Cannot save shopping list as your browser does not support HTML 5');
+        }
+    }
+    function SaveItem() {
+
+        var name = document.forms.ShoppingList.name.value;
+        var data = document.forms.ShoppingList.data.value;
+        localStorage.setItem(name, data);
+        doShowAll();
+
+    }
+
+    function RemoveItem()
+    {
+        var name=document.forms.ShoppingList.name.value;
+        document.forms.ShoppingList.data.value=localStorage.removeItem(name);
+        doShowAll();
+    }
+
+    function ClearAll() {
+        localStorage.clear();
+        doShowAll();
+    }
+
+    </script>
+    <!--ended shopping cart js-->
+     <!--no use start ajax request-->
+    <script type="text/javascript">
+        function cart_request(){
+            console.log("CartID :::::","{{product.id}}");
+            console.log("data list :::::",localStorage);
+            $.ajax(
+            {
+                type:"GET",
+                url: "/load-cart/",
+                data: { product :JSON.stringify(localStorage)},
+                dataType: 'json',
+                contentType: 'application/json',
+                error: function (xhr) {
+                    console.log("Errors:",xhr);
+
+                },
+                success: function( data ){
+                    alert("url::::",data);
+                },
+
+             })
+
+             }
+    </script>
+     <!--ended ajax request-->
+    <title style="padding-left: 10px;">{% trans "Product Details" %}</title>
+    <meta charset="UTF-8">
+    <!--test star-->
+     <style>
+        * {
+          box-sizing: border-box;
+        }
+        .heading {
+          font-size: 25px;
+          margin-right: 25px;
+        }
+
+        .fa {
+          font-size: 25px;
+        }
+
+        .checked {
+          color: orange;
+        }
+
+        /* Three column layout */
+        .side {
+          float: left;
+          width: 15%;
+          margin-top:10px;
+        }
+
+        .middle {
+          margin-top:10px;
+          float: left;
+          width: 70%;
+        }
+
+        /* Place text to the right */
+        .right {
+          text-align: right;
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+
+        .row {
+            margin-right: 0px;
+            margin-left: 0px;
+        }
+
+        /* The bar container */
+        .bar-container {
+          width: 100%;
+          background-color: #f1f1f1;
+          text-align: center;
+          color: white;
+        }
+
+        /* Individual bars */
+        .bar-5 {width: 60%; height: 18px; background-color: #4CAF50;}
+        .bar-4 {width: 30%; height: 18px; background-color: #2196F3;}
+        .bar-3 {width: 10%; height: 18px; background-color: #00bcd4;}
+        .bar-2 {width: 4%; height: 18px; background-color: #ff9800;}
+        .bar-1 {width: 15%; height: 18px; background-color: #f44336;}
+
+        /* Responsive layout - make the columns stack on top of each other instead of next to each other */
+        @media (max-width: 400px) {
+          .side, .middle {
+            width: 100%;
+          }
+          .right {
+            display: none;
+          }
+        }
+    </style>
+    <!--ended star-->
+</head>
+{% endblock %}
+{% block body %}
+    <body class="product-bg" onload="doShowAll()">
+
+<div class="col-md-12 col-sm-12 col-xs-12 pad-top-bbottom-10 main-header" style="margin-bottom: 15px;">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <a href="/">
+            <img class="img-login" src="/static/pegb/images/logo.png"></img>
+        </a>
+        <div class="company-font">{% trans "Product Details" %}</div>
+    </div>
+</div>
+<div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="cart-modal" id="cart-popup">
+            <div class="cart-div" id="cart-div">
+                <div class="col-md-12 col-sm-3 col-xs-3">
+                </div>
+                <div class="col-md-12 col-sm-9 col-xs-9">
+                <img src="/static/pegb/images/ok.png" class="cart-ok"  alt="The OK Icon">
+                <label >{% trans "This product added to your Cart!!" %}</label>
+                    <br/><br/>
+                <button type="button" class="btn-ok" onclick="click_ok()">{% trans "OK" %}</button>
+                 </div>
+
+                </div>
+
+        </div>
+    </div>
+<form method="post" action="" class="form-product-detail ad-top-bottom-20 mag-top-60" autocomplete="off">
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10 mag-top-100" >
+        <div class="col-md-10 col-sm-10 col-xs-10">
+            <div class="col-md-1 col-sm-1 col-xs-1"></div>
+            <div class="col-md-11 col-sm-11 col-xs-11">
+                    <input class="search-box" id="search-input" name="search" placeholder='{% trans "Search products" %}'  style="width: xx;border: 1px solid;" type="search" >
+                    <button type="submit"  name="btn-search" class="btn-search" value="Search"  style="">{% trans "Search" %}</button>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-2 col-xs-2 mobile-pad" >
+            <!--<a class="menu-cart" id="menu-cart" onclick="cart_request()" href="/cart/" style="text-decoration:none;">-->
+            <a class="menu-cart" id="menu-cart" href="/cart/" style="text-decoration:none;">
+                <img src="/static/pegb/images/cart.png" class="cart-img" style="width: 90%;height: 100%;"/>
+                <!--Your Cart-->
+            </a>
+            <div >
+               <span id="count" class="count">0</span>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20 content-header">
+         <div  class="col-md-2 col-sm-0 col-xs-0"  style="width:5%">
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 "  style="width:16%"><a href="/" class="menu-font" >
+                    <!--<img src="/static/login/images/home-icon.png" style="width: 38px;height: 28px;border-radius: 2px;box-shadow: rgb(3, 33, 51) 0px 0px 1px 0px">-->
+                    {% trans "Home" %}
+                    </a>
+                </div>
+                <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:16%"><a href="/" class="menu-font" >
+                    {% trans "Customer Care" %}
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"> <a class="menu-font" href="/user/login/"> {% trans "Login" %}</a></div>
+                <!--<div class="col-md-2 col-sm-2 col-xs-2 "  style="width:%"><a class="menu-font" href="/user/register/">{% trans "Signup" %}</a></div>-->
+                <div class="col-md-2 col-sm-4 col-xs-4"  style="width:16%"><a class="menu-font" href="/products/">{% trans "   Mart" %}</a></div>
+                <div class="col-md-2 col-sm-4 col-xs-4 "  style="width:15%"><a class="menu-font" href="/products/">{% trans "Promotions" %}</a></div>
+                 <div  class="col-md-2 col-sm-4 col-xs-4 " style="width:15%"><a href="/" class="menu-font" >
+                    {% trans "Free Delivery" %}
+                    </a>
+                </div>
+    </div>
+
+    <div class="container productDetails-width" style="margin-top: 80px;" id="container">
+                {% csrf_token %}
+                <!--    Product List-->
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    {% if product %}
+                    <ul>
+                        <li class="col-md-6 col-sm-12 col-xs-12 pad-top-bottom-20 product-detail">
+                            <!--<label type="text" id="image_tag" name="image_tag">
+                            {{ product.image_tag }}
+                            </label>-->
+                            {{ product.image_tag }}
+                            <br/>
+                        </li>
+                        <div class="col-md-6 col-sm-12 col-xs-12 pad-top-bottom-20" style="font-size:15px;">
+                            <div class="col-md-12 col-sm-12 col-xs-12 ">
+                               <!-- <label style="font-weight:bold;text-align:left;">{{ product.name }}</label>-->
+                                <div class="col-md-8 col-sm-12 col-xs-12 ">
+                                    <label readonly type="text" style="font-weight:bold;" id="prodName" name="prodName" class="" value="{{ product.name }}">{{ product.name }}</label>
+                                </div>
+                            </div>
+                             <div class="col-md-12 col-sm-12 col-xs-12 ">
+                                <div class="col-md-3 col-sm-5 col-xs-5 ">
+                                <label style="">{% trans "Item Code:" %} </label>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6 ">
+                                    <input readonly type="text" id="itemcode" name="itemcode"
+                                           class="" value="{{ product.barcode }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-0">
+                                {% if product.is_sale %}
+                                <div class="col-md-6 col-sm-5 col-xs-5 ">
+                                <label style="">{% trans "In Stock" %}</label>
+                                </div>
+                                {%endif%}
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-0">
+                                <div class="col-md-4 col-sm-6 col-xs-6 " >
+                                    <label >{% trans "Stock Quantity:" %} </label>
+                                </div>
+                                <div class="col-md-8 col-sm-6 col-xs-6 " style="margin-left: -37px;">
+                                    <label type="text" value="{{ product.quantity }}">{{ product.quantity }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-0">
+                                <div class="col-md-2 col-sm-3 col-xs-3">
+                                    <label> {% trans "Price :" %}</label>
+                                </div>
+                                <div class="col-md-2 col-sm-3 col-xs-3">
+                                    <label readonly type="text" id="price" name="price"
+                                            value="{{product.selling_price}}"> {{product.selling_price}}
+                                    </label>
+                                </div>
+                               <div class="col-md-1 col-sm-2 col-xs-2">
+                                    <label readonly  type="text" id="currency" name="currency" style=""
+                                       class="" value="{{product.currency}}">{{product.currency}}
+                                    </label>
+                               </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10 qtyBoxDetail">
+                                <div class="col-md-2 col-sm-4 col-xs-4" style="padding: 0px 2px;float:left;" >
+                                    <label>{% trans "Quantity:" %}</label>
+                                </div>
+                                <div  class="col-md-1 col-sm-2 col-xs-2" style="padding: 2px 0px;float:left;margin-left: 0px;">
+                                     <button type="button" name="qty-neg"  onclick="subtractClicks()"  class="btn-qty" title="Subtract">-</button>
+                                 </div>
+                                <div class="col-md-2 col-sm-3 col-xs-3" style="padding: 2px 2px;float:left;" >
+                                    <input type="text" id="qty-text" name="qty-text" onchange="qtyChange()" style="border-radius: 0px;text-align: center;border:1px solid #dcd2d2;" title="Count" class="" value="{{qty}}">
+                                 </div>
+                                 <div class="col-md-1 col-sm-2 col-xs-2" style="padding: 2px 0px;float:left;">
+                                    <button type="button" name="qty-pos" onclick="addClicks()" title="Add" class="btn-qty">+</button>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10">
+                                <label style="text-align:left;">{{product.details}}</label>
+                            </div>
+
+                            <!-- <div class="col-md-8 col-sm-12 col-xs-12 ">
+                                 <img src="/static/login/images/ean13_barcode.svg" style="width:150px;height:85px;"/>
+                            </div>-->
+
+                             <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                                 <button type="button" id="btn-cart" value="Add To Cart" onclick="addToCart()" class="btn-cart" >
+                                    <img src="/static/pegb/images/cart.png" style="width:30px;height:30px;"/>{% trans "Add To Cart" %}
+                                 </button>
+
+                                 <!--test review-->
+
+
+                            </div>
+
+
+
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-20">
+                        </div>
+
+
+
+                    </ul>
+                    <br/><br/>
+                    {% else %}
+                    <p>There are no products in the page.</p>
+                    {% endif %}
+
+                </div>
+                <!--        ended product list-->
+
+                <!--{% if cart_message %}
+                 { <script>alert("{{ cart_message }}")</script>
+                {% endif %}-->
+
+
+    </div>
+    </form>
+
+
+</body>
+{% endblock  %}
