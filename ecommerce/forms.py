@@ -13,7 +13,6 @@ banking_choices = (('KBZ_Mobile', 'KBZ mobile banking'), ('AYA_Mobile', 'AYA mob
 
 class UserDetailAdminForm(forms.ModelForm):
     GENDER = [('', _('-----------')), ('MALE', 'MALE'), ('FEMALE', 'FEMALE')]
-    LANGUAGE = ((1, 'English'))
     NATIONALITY_CHOICES = [
         ('', _('-----------')),
         ('MM', _('BURMESE')),
@@ -208,14 +207,12 @@ class UserDetailAdminForm(forms.ModelForm):
         ('ZW', _('ZIMBABWEAN')),
         ('99', _('OTHER'))
     ]
-    # confirm_temp_email = forms.CharField(max_length=254, required=False)
     gender = forms.ChoiceField(choices=GENDER, required=False)
 
     def __init__(self, *args, **kwargs):
         super(UserDetailAdminForm, self).__init__(*args, **kwargs)
-
         self.fields['language'] = forms.ChoiceField(
-            choices=self.LANGUAGE)
+            choices=LANGUAGES)
 
 
 class AuthenticateExtraForm(AuthenticationForm):
@@ -363,8 +360,8 @@ class OrderConfirmedForm(forms.ModelForm):
                                    attrs={'placeholder': _('Delivery Charges'), 'readonly': 'readonly'}))
     total = forms.CharField(required=False, label="Total",
                             widget=forms.TextInput(attrs={'placeholder': _('Total Amount'), 'readonly': 'readonly'}))
-    customer_township = forms.ChoiceField(required=True, initial="", choices=(('', ' '),) + models.township_choices,
-                                          label="Township*")
+    customer_township = forms.ChoiceField(required=True, initial="", choices=(('', ' '),) + models.state_choices,
+                                          label="Province/State*")
 
     payment_type = forms.ChoiceField(choices=payment_choices, label="Payment Type", required=True, widget=forms.RadioSelect(attrs={'class': 'btn btn-radio', 'placeholder': _('Payment Type')}))
     banking_type = forms.ChoiceField(choices=banking_choices, label="Other Payment", required=False,

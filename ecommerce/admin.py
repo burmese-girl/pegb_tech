@@ -9,9 +9,9 @@ class UserProfileAdmin(SimpleHistoryAdmin):
     form = forms.UserDetailAdminForm
     ordering = ['user']
     search_fields = ['user']
-    list_display = ['user', 'gender', 'country_code',
+    list_display = ['user','customer_category' ,'gender', 'country_code',
                     'mobile', 'dob', 'active_user', 'created_from']
-    search_fields = ['mobile', 'created_from', 'country_code']
+    search_fields = ['user','mobile', 'created_from', 'country_code']
     list_per_page = 20
 
 
@@ -27,8 +27,6 @@ class ProductAdmin(SimpleHistoryAdmin):
     search_fields = ['name']
     ordering = ['name']
     list_display = ['name','selling_price','currency','uom']
-    # list_display = ['name', 'barcode', 'selling_price', 'quantity', 'cart_quantity', 'weight', 'uom', 'category_id',
-    #                 'currency', 'product_image', 'image_tag']
 
 
 class CustomerCategoryAdmin(SimpleHistoryAdmin):
@@ -46,7 +44,7 @@ class OrderAdmin(SimpleHistoryAdmin):
     ordering = ['-create_date']
     exclude = ['order_quantity']
     search_fields = ['order_no', 'status', 'create_date', 'customer_name']
-    list_display = ['order_no','create_date','customer_name', 'sub_total', 'tax','discount', 'deli_fee' ,'total']
+    list_display = ['order_no','create_date','customer_name', 'sub_total', 'tax','discount', 'deli_fee' ,'total','status']
 
 
 class OrderItemAdmin(SimpleHistoryAdmin):

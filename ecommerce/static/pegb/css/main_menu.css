@@ -1357,6 +1357,7 @@ a > menu-cart:focus {
 #id_customer_township{
     border: 1px solid #fb0e0e;
     background-color: #f1f4fd;
+    text-align: center;
 }
 
 .fields {

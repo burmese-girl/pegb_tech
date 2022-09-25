@@ -4,6 +4,7 @@ from django.core.files.storage import FileSystemStorage
 from django.utils.safestring import mark_safe
 import numpy as np
 from decimal import *
+
 gender_choices = (('MALE', 'MALE'), ('FEMALE', 'FEMALE'))
 nationality_choices = (('SG', ('SINGAPOREAN')),
                        ('AF', ('AFGHAN')),
@@ -443,28 +444,13 @@ country_choices = (('SG', ('SINGAPORE')),
                    ('ZM', ('ZAMBIA')),
                    ('ZW', ('ZIMBABWE')),
                    ('99', ('OTHER')))
-township_choices = (('Bahan', 'Bahan Township, Yangon'),
-                    ('Insein', 'Insein Township, Yangon'),
-                    ('Hlaing', 'Hlaing Township, Yangon'),
-                    ('Kamayut', 'Kamayut Township, Yangon'),
-                    ('Tamwe', 'Tamwe Township, Yangon'),
-                    ('Mayangone', 'Mayangone Township, Yangon'),
-                    ('Sanchaung', 'Sanchaung Township, Yangon'),
-                    ('Kyee Myin Daing', 'Kyee Myin Daing Township, Yangon'),
-                    ('ThingyanKyun', 'ThingyanKyun Township, Yangon'),
-                    ('South Okkalapa', 'South Okkalapa Township, Yangon'),
-                    ('North Okkalapa', 'North Okkalapa Township, Yangon'),
-                    ('South Dagon', 'South Dagon Township, Yangon'),
-                    ('North Dagon', 'North Dagon Township, Yangon'),
-                    ('Tharkata', 'Tharkata Township, Yangon'),
-                    ('Dawpon', 'Dawpon Township, Yangon'),
-                    ('Mingalar Taung Nyunt', 'Mingalar Taung Nyunt Township, Yangon'),
-                    ('Lanmataw', 'Lamataw Township, Yangon'),
-                    ('Botahtaung', 'Botahtaung Township, Yangon'),
-                    ('Yankin', 'Yankin Township, Yangon'),
-                    ('Kyauktada', 'Kyauktada Township, Yangon'),
-                    ('HlaingTharYar', 'Hlaing Thar Yar Township, Yangon'),
-                    ('ShwePyiThar', 'Shwe Pyi Thar Township, Yangon'),)
+state_choices = (('Abu_Dubai', 'Abu Dhabi'),
+                 ('Dubai', 'Dubai'),
+                 ('Sharjah', 'Sharjah'),
+                 ('Ajman', 'Ajman'),
+                 ('Ras_Al_Khaimah', 'Ras Al Khaimah'),)
+delivery_status = (('Draft', 'Draft'), ('Waiting', 'Waiting'), ('Ready', 'Ready'), ('Finish', 'Finish'))
+
 
 # Create your models here.
 class UserProfile(models.Model):
@@ -485,10 +471,32 @@ class UserProfile(models.Model):
     active_user = models.BooleanField(default=False)
     language = models.CharField(max_length=10, blank=True)
     email_confirmed = models.BooleanField(default=False)
+    customer_category = models.CharField(help_text="Customer Category", blank=True, max_length=255)
+
+    # def __init__(self, *args, **kwargs):
+    #     order_counts = Order.objects.filter(customer_id_id=self.user.id)
+    #     print(len(order_counts))
+    #     if 0 <= len(order_counts) <= 1:
+    #         self.customer_category = 'Bronze'
+    #     elif 2 <= len(order_counts) <= 49:
+    #         self.customer_category = 'Silver'
+    #     elif len(order_counts) >= 50:
+    #         self.customer_category = 'Gold'
+        # super().__init__(*args, **kwargs)
 
     def __str__(self):
         return self.user.username
 
+    def save(self, *args, **kwargs):
+        order_counts = Order.objects.filter(customer_id_id=self.user.id)
+        print(len(order_counts))
+        if 0 <= len(order_counts) <= 2:
+            self.customer_category = 'Bronze'
+        elif 2 <= len(order_counts) <= 49:
+            self.customer_category = 'Silver'
+        elif len(order_counts) >= 50:
+            self.customer_category = 'Gold'
+        super(UserProfile, self).save(*args, **kwargs)
 
 class ProductCategory(models.Model):
     name = models.CharField(help_text="Name", max_length=256, blank=True)
@@ -547,7 +555,10 @@ class CustomerCategory(models.Model):
     def display_order_num_to(self):
         return '{0}'.format(self.num_orders_to)
 
+
 image_fs = FileSystemStorage(location='media/')
+
+
 def create_new_ref_number():
     all_order = Order.objects.all()
     length_obj = len(all_order)
@@ -561,6 +572,8 @@ class Order(models.Model):
     customer_name = models.CharField(help_text="Name", max_length=256, blank=False)
     customer_phone = models.CharField("Customer Phone", max_length=12, blank=False)
     customer_address = models.CharField("Customer Address", max_length=256, blank=True)
+    customer_state = models.CharField("Customer State", choices=state_choices, max_length=256, blank=False,
+                                      default='Dubai')
     customer_id = models.ForeignKey(User, on_delete=models.CASCADE, )
     create_date = models.DateTimeField("Create Date", blank=True, )
     discount = models.IntegerField("Discount % ", blank=True, default=0)
@@ -573,24 +586,25 @@ class Order(models.Model):
     banking_type = models.CharField("Other Payment", max_length=256, blank=True)
     banking_image = models.ImageField(upload_to='banking', storage=image_fs, help_text="Banking Slip Image",
                                       default='banking.png', blank=True, null=True)
+    status = models.CharField(help_text="Status", choices=delivery_status, max_length=256, blank=False, default='Draft')
 
     def __str__(self):
         return self.order_no
 
     def display_customer_name(self):
-        return  self.customer_name
+        return self.customer_name
 
-
-    def save(self, *args, **kwargs):
-        # import pdb;pdb.set_trace()
-        order_items = self.order_items.all()
-        total = Decimal(0)
-        for order in order_items:
-            total += order.total_price
-        self.sub_total = total
-        # print("*** Self Value in Order", self.total)
-        self.total = Decimal(self.sub_total) - Decimal(self.discount) + Decimal(self.tax) + Decimal(self.deli_fee)
-        super(Order, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    # import pdb;pdb.set_trace()
+    # if self.order_items :
+    #     order_items = self.order_items.all()
+    #     total = Decimal(0)
+    #     for order in order_items:
+    #         total += order.total_price
+    #     self.sub_total = total
+    #     # print("*** Self Value in Order", self.total)
+    #     self.total = Decimal(self.sub_total) - Decimal(self.discount) + Decimal(self.tax) + Decimal(self.deli_fee)
+    #     super(Order, self).save(*args, **kwargs)
 
 
 class OrderItem(models.Model):

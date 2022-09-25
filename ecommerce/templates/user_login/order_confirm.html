@@ -151,11 +151,12 @@
             var payment_type = $('input[name="payment_type"]:checked').val();
             var banking_type = $('input[name="banking_type"]:checked').val();
             var image_upload=$('#uploaded_file_url')[0].innerHTML;
+            var customer_id =$( '#user_id' )[0].value;
             console.log("Payment Type ::::::",payment_type);
             console.log("Banking Type ::::::",banking_type);
             console.log("Banking Image ::::::",image_upload);
             //alert("confirm ??? ");
-            var customer_data={'name': name , 'phone':phone, 'address':address, 'township':township,'total': total,'discount': discount, 'tax':tax, 'sub_total':sub_total,'deli_fee':deli_fee,'payment_type':payment_type,'banking_type':banking_type,'banking_image':image_upload};
+            var customer_data={'name': name ,'customer_id': customer_id, 'phone':phone, 'address':address, 'township':township,'total': total,'discount': discount, 'tax':tax, 'sub_total':sub_total,'deli_fee':deli_fee,'payment_type':payment_type,'banking_type':banking_type,'banking_image':image_upload};
             var product_list = JSON.stringify(localStorage);
             localStorage.clear();
             localStorage.setItem("product_list", product_list);
@@ -175,7 +176,7 @@
                   },
                   error: function(xhr) {
                     console.log("Xhr :::::::::::::",xhr);
-                    console.log("Response Text ::::", xhr.responseText);
+                    //console.log("Response Text ::::", xhr.responseText);
 
                     if (xhr.status !=  201){
                         alert("fail");
@@ -326,6 +327,7 @@
                             <span class="validation">{{ form.total.errors|striptags }}</span>
                         </div>
                      </div>-->
+                        <input id="user_id" type="hidden" name="user_id" value="{{ user.id }}" />
                       <div class="col-md-12 col-sm-12 col-xs-12">
                          <div class="controls">
                             <div class="col-md-4 col-sm-4 col-xs-4">
@@ -444,7 +446,7 @@
                          </div>
                           <div class="col-md-12 col-sm-12 col-xs-12 bank-detail" id="bank-detail">
                                  <div class="controls">
-                                      {% trans "ငွေလွှဲထားသော ပြေစာကိုထည့်သွင်းပေးပါ။"   %}
+                                      {% trans "Please attach your payment transaction!"   %}
                                  </div>
                           </div>
                          <div class="col-md-12 col-sm-12 col-xs-12 kbz-bank" id="kbz-bank">

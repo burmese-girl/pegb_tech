@@ -29,16 +29,17 @@ class OrderConfirm(views.APIView):  # Submit Order Only from ajax API
         transaction.atomic()
         logger.debug("[Order Submit - {0}] Data: {1}".format(
             request.query_params.get('site', ''), request.data))
-
+        # request.data["customer_id"] = request.user.id
         order_ser = serializers.OrderSerializer(data=request.data)
+
         if not order_ser.is_valid():
             logger.warn("[{0}]invalid Order, rollback - {1}".format(
                 request.data.get('customer', ''), order_ser.errors))
-
             transaction.rollback()
             return Response(order_ser.errors, status=status.HTTP_400_BAD_REQUEST)
         order_ser.save()
         order = models.Order.objects.get(id=order_ser.data['id'])
+        print("User :::::::  ", request.user.pk)
         order.save()
         products = request.data['product_list']
         json_data = json.loads(products)

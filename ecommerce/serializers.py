@@ -26,17 +26,15 @@ class OrderSerializer(serializers.ModelSerializer):
         source='order.total', decimal_places=2, max_digits=20, required=False, )
     sub_total = serializers.DecimalField(
         source='order.sub_total', decimal_places=2, max_digits=20, required=False, )
-    # order_quantity = serializers.IntegerField(source='order.order_quantity', required=False,)
-    customer_township = serializers.CharField(
+    customer_state = serializers.CharField(
         source='order.customer_township', required=False, allow_blank=True)
-    # delivery = serializers.CharField(source='order.delivery', required=False, allow_blank=True)
     deli_fee = serializers.DecimalField(
         source='order.deli_fee', decimal_places=2, max_digits=20, required=False, )
 
     class Meta:
         model = models.Order
         fields = ('id', 'customer_name', 'customer_phone', 'customer_address',
-                  'customer_township', 'sub_total',
+                  'customer_state', 'sub_total',
                   'discount', 'tax', 'deli_fee', 'total',)
 
         extra_kwargs = {
@@ -50,21 +48,23 @@ class OrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This field may not be blank.")
         return value
 
-    def create(self, validated_data):
-        user = User.objects.get(username='admin')
-        # deli = models.DeliveryManagement.objects.filter(
-        #     status__icontains='Draft')[0]
+    def create(self, validate_data):
         create_date = datetime.now()
-        order = models.Order(**validated_data)
+        order = models.Order(**validate_data)
         order.create_date = create_date
-        order.sale_person_id = user.pk
-        order.customer_id_id = 1 #need to put dynamic customer id
         customer_data = self.initial_data.get('customer')
         customer_json = json.loads(customer_data)
+        print("validate data in serializer::: ",customer_json.get('customer_id'))
+        user_id=customer_json.get('customer_id')
+        user = User.objects.get(id=user_id)
+        profile = models.UserProfile.objects.get(user_id=user.pk)
+        profile.create_from ="Web"
+        profile.save()
+        order.customer_id_id = user.pk
         order.customer_name = customer_json.get('name')
         order.customer_phone = customer_json.get('phone')
         order.customer_address = customer_json.get('address')
-        order.customer_township = customer_json.get('township')
+        order.customer_state = customer_json.get('township')
         order.discount = customer_json.get('discount')
         order.tax = customer_json.get('tax')
         order.sub_total = customer_json.get('sub_total')
@@ -76,15 +76,6 @@ class OrderSerializer(serializers.ModelSerializer):
             order.banking_image = customer_json.get(
                 'banking_image').split('/')[2]
         print("banking image :::::::", order.banking_image)
-        # if self.initial_data:
-        #     # check mandatory in Order item
-        #     if 'name' not in self.initial_data.get('product_list'):
-        #         raise serializers.ValidationError({"customer name": ["This field is required."]})
-        #
-        #     if 'deli_fee' not in self.initial_data.get('product_list'):
-        #         raise serializers.ValidationError({"deli_fee": ["This field is required."]})
-
-        # self.initial_data.pop('product')
 
         order.save()
         return order

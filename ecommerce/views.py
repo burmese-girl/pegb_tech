@@ -73,32 +73,36 @@ def index(request):
 
 
 def login(request):
-    print("Went Login")
     form = forms.AuthenticateExtraForm(request, data=request.POST)
+
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('user:profile'))
 
     if request.method != 'POST':
         form = forms.AuthenticateExtraForm(request)
 
     if request.method == 'POST':
-
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(username=username, password=password)
+        print ("User login ::::",user)
 
-        if user.userprofile.active_user:
-
-            if user is not None:
+        if user is not None:
+            if user.userprofile.active_user:
                 auth_login(request, user)
                 print("Login Successfully!")
-
             else:
-                html = "<h2 style='background-color:yellow;'> Authentication Error! Check username & password again !</h2>"
+                html = "<h2 style='background-color:yellow;'> This account is not activate. Please activate your email " \
+                       "first!</h2> "
                 return HttpResponse(html)
 
-            return HttpResponseRedirect(reverse('user:profile'))
         else:
-            html = "<h2 style='background-color:yellow;'> This account is not activate. Please activate your email first!</h2>"
+            html = "<h2 style='background-color:yellow;'> Authentication Error! Check username & password again " \
+                   "!</h2> "
             return HttpResponse(html)
+
+        return HttpResponseRedirect(reverse('user:profile'))
+
 
     return render(request, "login.html", {
         'form': form,
@@ -263,6 +267,7 @@ def product_details(request, *args, **kwargs):
             return render(request, 'product_search.html',
                           {'product_list': product_list, 'count': count, 'search_item': search_input})
 
+
 class CartListView(generic.ListView):
     model = models.Product
     context_object_name = 'cart_list'
@@ -276,13 +281,9 @@ class CartListView(generic.ListView):
 
 
 def order(request):
-
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    user = authenticate(username=username, password=password)
     form = forms.AuthenticateExtraForm(request)
-    if user is None:
-        return render(request, 'login.html',{'form':form})
+    if not request.user.is_authenticated :
+        return render(request, 'login.html', {'form': form})
 
     if request.method == "POST":
         order_form = forms.OrderConfirmedForm()
@@ -303,67 +304,10 @@ def order(request):
 class SuccessOrderView(generic.ListView):
     model = models.Order
     context_object_name = 'order'
-    queryset = []  # list(models.Order.objects.all())[-1] #get last order object
+    queryset = []
     template_name = 'order_success.html'
-
     def get(self, request):
         print("\n  ******** SelfConfirmedOrder ******* {0} \n".format(self.queryset))
         return render(request, 'order_success.html', {'order': self.queryset})
-
-
-# ajax request from order_confirm.html
-def confirm_order(request):
-    if 'product' in request.GET:
-        products = request.GET.get('product')
-        json_data = json.loads(products)
-    if 'customer' in request.GET:
-        customer_raw = request.GET.get('customer')
-        customer_json = json.loads(customer_raw)
-        customer_name = customer_json['name']
-        customer_phone = customer_json['phone']
-        customer_address = customer_json['address']
-        customer_township = customer_json['township']
-        discount = customer_json['discount']
-        tax = customer_json['tax']
-        deli_fee = Decimal(customer_json['deli_fee'])
-        total = Decimal(customer_json['total'])
-        sub_total = customer_json['sub_total']
-        timezone.activate(pytz.timezone("Asia/Rangoon"))  # set timezone for Rangoon
-        create_date = datetime.now()
-        # hour = create_date.hour + 6
-        # minutes = create_date.minute + 30
-        # if minutes > 59:
-        #     minutes = minutes - 60
-        #     hour += 1
-        # mm_date = create_date.replace(hour=hour, minute=minutes)
-        print("***create_date  =", create_date)
-        user = User.objects.get(username='admin')
-        deli = models.DeliveryManagement.objects.filter(status__icontains='Draft')[0]
-        create_order, created = models.Order.objects.get_or_create(customer_name=customer_name,
-                                                                   customer_phone=customer_phone,
-                                                                   customer_address=customer_address,
-                                                                   customer_township=customer_township,
-                                                                   discount=discount,
-                                                                   tax=tax,
-                                                                   sub_total=sub_total, deli_fee=deli_fee,
-                                                                   total=total, create_date=create_date,
-                                                                   sale_person_id=user.pk, delivery_id=deli.pk)
-        print("*** Order Created Successfully.", create_order.deli_fee)
-        SuccessOrderView.queryset = create_order
-        print("\n******** Self Confirmed Order ****", SuccessOrderView.queryset)
-        request.session['order_no'] = create_order.order_no
-        for prod in json_data:
-            product_raw = json_data[str(prod)].replace(" ", "")
-            product_json = json.loads(product_raw)
-            order_qty = int(product_json['qty'])
-            price = int(product_json['price'])
-            discount_price = 0.00
-            product = models.Product.objects.get(id=int(prod))
-            created_orderItem, created = models.OrderItem.objects.get_or_create(order_id=create_order.pk,
-                                                                                product_id=product.pk,
-                                                                                qty=order_qty, price=price)
-
-            print("*** OrderItem Created ****.", created_orderItem)
-    return render(request, 'order_success.html', {'order_no': create_order.order_no})
 
 
