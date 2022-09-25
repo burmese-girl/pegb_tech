@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     #custom
     'bootstrapform',
     'ecommerce',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -146,4 +147,16 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'mayyi1991@outlook.com'
 #sender's email-id
 EMAIL_HOST_PASSWORD ='may1234'
-#password associated with above email-id
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+    ),
+}

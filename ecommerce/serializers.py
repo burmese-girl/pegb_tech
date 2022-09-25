@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from rest_framework import serializers, exceptions
 from . import models
@@ -54,11 +53,11 @@ class OrderSerializer(serializers.ModelSerializer):
         order.create_date = create_date
         customer_data = self.initial_data.get('customer')
         customer_json = json.loads(customer_data)
-        print("validate data in serializer::: ",customer_json.get('customer_id'))
-        user_id=customer_json.get('customer_id')
+        print("validate data in serializer::: ", customer_json.get('customer_id'))
+        user_id = customer_json.get('customer_id')
         user = User.objects.get(id=user_id)
         profile = models.UserProfile.objects.get(user_id=user.pk)
-        profile.create_from ="Web"
+        profile.create_from = "Web"
         profile.save()
         order.customer_id_id = user.pk
         order.customer_name = customer_json.get('name')
@@ -73,14 +72,49 @@ class OrderSerializer(serializers.ModelSerializer):
         order.payment_type = customer_json.get('payment_type')
         order.banking_type = customer_json.get('banking_type') or "-"
         if customer_json.get('banking_image') != '':
-            order.banking_image = customer_json.get(
-                'banking_image').split('/')[2]
+            order.banking_image = customer_json.get('banking_image').split('/')[2]
         print("banking image :::::::", order.banking_image)
-
         order.save()
         return order
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderItem
         fields = '__all__'
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+    def validate(self, data):
+        username = data.get("username", "")
+        password = data.get("password", "")
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if user:
+                if user.is_active:
+                    data["user"] = user
+                    print("User Data", data["user"])
+                else:
+                    msg = "User is not active."
+                    raise exceptions.ValidationError(msg)
+            else:
+                msg = "Unable to login with given credentials."
+                raise exceptions.ValidationError(msg)
+        else:
+            msg = "You must provide both username and password in this login API"
+            raise exceptions.ValidationError(msg)
+
+        return data
+
+
+class LogoutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ()

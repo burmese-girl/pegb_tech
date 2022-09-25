@@ -153,7 +153,6 @@ def register(request):
         if password:
             user.set_password(password)
         user.save()
-
         print("User =============")
         print(user)
 
@@ -169,12 +168,10 @@ def register(request):
         profile.save()
         print("Profile =============")
         print(profile)
-
         # For Email Sending
         # user = register_form.save(commit=False)
         # user.is_active = False  # Deactivate account till it is confirmed
         # user.save()
-
         current_site = get_current_site(request)
         subject = 'Activate Your Account'
         data = {
@@ -185,7 +182,6 @@ def register(request):
         }
         message = render_to_string('account_activation_email.html', data)
         # user.email_user(subject, message)
-
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [user.email, ]
         send_mail(subject, message, email_from, recipient_list)

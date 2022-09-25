@@ -8,18 +8,17 @@ from rest_framework import generics
 from . import models
 from . import serializers
 import json
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import login as django_login, logout as django_logout
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication, BasicAuthentication
 import scrape_helper
 logger = scrape_helper.getlogger("Api")
 
-class OrderConfirm(views.APIView):  # Submit Order Only from ajax API
-    # permission_classes = [IsAuthenticated]
+class OrderConfirm(views.APIView):
     parser_classes = [JSONParser]
     serializer_class = serializers.OrderSerializer
     queryset = models.Order.objects.all()
-
-    # renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
-    # template_name = 'order_success.html'
-
     def get(self, request, format=None):
         content = {'status': 'Request was permitted from GET API'}
         return Response(content)
@@ -88,3 +87,27 @@ class OrderConfirm(views.APIView):  # Submit Order Only from ajax API
                          'customer_township': customer_township, 'customer_address': customer_address, 'payment_type': order.payment_type, 'banking_type': order.banking_type}
 
         return Response(content_order, status=status.HTTP_201_CREATED)
+
+
+class LoginView(generics.CreateAPIView):
+    permission_classes = [AllowAny,]
+    authentication_class = (BasicAuthentication,)
+    queryset = ""
+    serializer_class = serializers.LoginSerializer  # you need serializer
+    def post(self, request, format=None):
+        transaction.atomic()
+        serializer = serializers.LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        django_login(request, user)
+        token, created = Token.objects.get_or_create(user=user)
+        # return Response({"token": token.key}, status=200)
+        data = dict()
+        data["first_name"] = user.first_name
+        data['last_name'] = user.last_name
+        data['country_code'] = user.userprofile.country_code
+        data['mobile'] = user.userprofile.mobile
+        data['gender'] = user.userprofile.gender
+        data['dob'] = user.userprofile.dob
+        data['token'] = token.key
+        return Response(data, status=200)
