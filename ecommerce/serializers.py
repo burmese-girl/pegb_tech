@@ -8,15 +8,12 @@ from django.contrib.auth import authenticate
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    # order_no = serializers.CharField(source='order.order_no', required=False, allow_blank=True)
     customer_name = serializers.CharField(
         source='order.customer_name', required=False, allow_blank=True)
     customer_phone = serializers.CharField(
         source='order.customer_phone', required=False, allow_blank=True)
     customer_address = serializers.CharField(
         source='order.customer_address', required=False, allow_blank=True)
-    # sale_person = serializers.CharField(source='order.sale_person', required=False, allow_blank=True)
-    # create_date = serializers.DateTimeField(source='order.create_date', required=False,)
     discount = serializers.DecimalField(
         source='order.discount', decimal_places=2, max_digits=20, required=False, )
     tax = serializers.DecimalField(
@@ -53,7 +50,6 @@ class OrderSerializer(serializers.ModelSerializer):
         order.create_date = create_date
         customer_data = self.initial_data.get('customer')
         customer_json = json.loads(customer_data)
-        print("validate data in serializer::: ", customer_json.get('customer_id'))
         user_id = customer_json.get('customer_id')
         user = User.objects.get(id=user_id)
         profile = models.UserProfile.objects.get(user_id=user.pk)
@@ -73,7 +69,6 @@ class OrderSerializer(serializers.ModelSerializer):
         order.banking_type = customer_json.get('banking_type') or "-"
         if customer_json.get('banking_image') != '':
             order.banking_image = customer_json.get('banking_image').split('/')[2]
-        print("banking image :::::::", order.banking_image)
         order.save()
         return order
 
@@ -114,7 +109,28 @@ class LoginSerializer(serializers.ModelSerializer):
         return data
 
 
-class LogoutSerializer(serializers.ModelSerializer):
+class AddProductSerializer(serializers.ModelSerializer):
+    # product_category = serializers.SerializerMethodField()
+
     class Meta:
-        model = User
-        fields = ()
+        model = models.Product
+        fields = ('name', 'selling_price', 'weight', 'quantity')
+
+    # def get_product_category(self, obj):
+    #     return obj.category_id.name
+
+    def create(self, validate_data):
+        print("Type of ", validate_data)
+        product = models.Product(**validate_data)
+        product.uom="kg"
+        product.save()
+        print(product.id)
+        return product
+
+    def validate_name(self, value):
+        if not value:
+            raise serializers.ValidationError("This field may not be blank.")
+        return value
+
+
+

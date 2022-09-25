@@ -25,7 +25,7 @@ class ProductCategoryAdmin(SimpleHistoryAdmin):
 class ProductAdmin(SimpleHistoryAdmin):
     list_per_page = 20
     search_fields = ['name']
-    ordering = ['name']
+    ordering = ['-id']
     list_display = ['name','selling_price','currency','uom']
 
 
