@@ -33,29 +33,35 @@ If you don't want to use super user for testing, please create normal user with 
 In this step, you can give the username, email and password as you want.
 
 6. There are login api, add_product api and discount config api in rest_framework :
-
-7. add_product api : http://127.0.0.1:8000/user/api/add_product/
+7. login api : http://127.0.0.1:8000/user/api/user_login
+8. sample json **request** format for login api from postman or rest_framework browser:
  
-8. sample json **request** format for add product api from postman or rest_framework browser:
-      
- 
-    **{
-           "name": "pineapple",
-            "selling_price": 100,
-            "weight": 10,
-            "quantity": 12,
-            "product_category": "local fruits"
-       }**
-
-9. login api : http://127.0.0.1:8000/user/api/user_login
-
-10. sample json **request** format for add product api from postman or rest_framework browser:
- 
-        **{
+         {
              "username": "mayyiaung91@gmail.com",
               "password": "admin"
-        }**
-11. For AWS Deployment in production , we should have the separated settings.py  file for cloud server configuration for S3 bucket, RDBMS and EC2 instance.
+         } 
+9. add_product api : http://127.0.0.1:8000/user/api/add_product
+10. sample json **request** format for add product api from postman or rest_framework browser:       
+          
+        {
+              "name": "pineapple",
+               "selling_price": 100,
+               "weight": 10,
+               "quantity": 12,
+               "product_category": "local fruits"
+          }
+ 
+
+11. discount_config api : http://127.0.0.1:8000/user/api/discount_config  
+12. sample json request format for discount_config api
+       
+         {
+                 "name": "Silver",
+                 "amount_percent": 15
+          }
+
+ 
+13. #For AWS Deployment in production , we should have the separated settings.py  file for cloud server configuration for S3 bucket, RDBMS and EC2 instance.
 
 AWS_ACCESS_KEY_ID = 'your_access_key'
 AWS_SECRET_ACCESS_KEY = 'your_secret_key'

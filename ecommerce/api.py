@@ -146,7 +146,7 @@ class DiscountConfigView(generics.CreateAPIView):
     # permission_classes = [AllowAny,]
     authentication_class = (BasicAuthentication,)
     queryset = ""
-    serializer_class = serializers.DiscountConfigSerializer  # you need serializer
+    serializer_class = serializers.DiscountConfigSerializer
 
     def post(self, request, format=None):
         transaction.atomic()

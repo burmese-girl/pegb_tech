@@ -139,10 +139,9 @@ class DiscountConfigSerializer(serializers.ModelSerializer):
         fields = ('name', 'amount_percent')
 
     def create(self, validate_data):
-        print("Data from client :: ", validate_data)
         discount = models.DiscountConfig(**validate_data)
         discount.save()
-        print("Discount Id",discount.id)
+        print("Discount Id :",discount.id)
         return discount
 
     def validate_name(self, value):
