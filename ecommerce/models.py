@@ -482,7 +482,7 @@ class UserProfile(models.Model):
     #         self.customer_category = 'Silver'
     #     elif len(order_counts) >= 50:
     #         self.customer_category = 'Gold'
-        # super().__init__(*args, **kwargs)
+    # super().__init__(*args, **kwargs)
 
     def __str__(self):
         return self.user.username
@@ -497,6 +497,7 @@ class UserProfile(models.Model):
         elif len(order_counts) >= 50:
             self.customer_category = 'Gold'
         super(UserProfile, self).save(*args, **kwargs)
+
 
 class ProductCategory(models.Model):
     name = models.CharField(help_text="Name", max_length=256, blank=True)
@@ -624,6 +625,15 @@ class OrderItem(models.Model):
         self.total_price = Decimal(self.qty) * Decimal(self.final_price)
         super(OrderItem, self).save(*args, **kwargs)
         self.order.save()
+
+
+class DiscountConfig(models.Model):
+    name = models.CharField(help_text="Customer Category", max_length=256, blank=True)
+    amount_percent = models.IntegerField("Discount(%)", blank=False, default=0)
+    def __str__(self):
+        return self.name
+    def display_amount_percent(self):
+        return self.amount_percent
 
 
 User.profile = property(lambda u: UserProfile.objects.get_create(user=u))

@@ -53,6 +53,11 @@ class OrderItemAdmin(SimpleHistoryAdmin):
     search_fields = ['order__order_no', 'product__name']
     list_display = ['product', 'order', 'qty', 'price']
 
+class DiscountConfigAdmin(SimpleHistoryAdmin):
+    ist_per_page = 20
+    # ordering =['-create_date']
+    search_fields = ['name']
+    list_display = ['name', 'amount_percent']
 
 admin.site.register(models.UserProfile, UserProfileAdmin)
 admin.site.register(models.ProductCategory, ProductCategoryAdmin)
@@ -60,3 +65,4 @@ admin.site.register(models.Product, ProductAdmin)
 admin.site.register(models.CustomerCategory,CustomerCategoryAdmin)
 admin.site.register(models.Order, OrderAdmin)
 admin.site.register(models.OrderItem, OrderItemAdmin)
+admin.site.register(models.DiscountConfig, DiscountConfigAdmin)

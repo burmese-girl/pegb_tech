@@ -121,6 +121,7 @@ class AddProductView(generics.CreateAPIView):
     authentication_class = (BasicAuthentication,)
     queryset = ""
     serializer_class = serializers.AddProductSerializer  # you need serializer
+
     def post(self, request, format=None):
         transaction.atomic()
         prod_data = {'name': request.data["name"], 'selling_price': request.data["selling_price"],
@@ -133,7 +134,7 @@ class AddProductView(generics.CreateAPIView):
                 request.data.get('name', ''), product_ser.errors))
             transaction.rollback()
             return Response(product_ser.errors, status=status.HTTP_400_BAD_REQUEST)
-        da=product_ser.save()
+        da = product_ser.save()
         product = models.Product.objects.get(id=da.id)
         product.save()
 
@@ -143,5 +144,5 @@ class AddProductView(generics.CreateAPIView):
             transaction.rollback()
         data = dict()
         data["msg"] = "Successfully Add Product!"
-        data["product_id"] = product.pk
+        # data["product_id"] = product.pk
         return Response(data, status=200)
