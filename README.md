@@ -33,8 +33,10 @@ If you don't want to use super user for testing, please create normal user with 
 In this step, you can give the username, email and password as you want.
 
 6. There are login api, add_product api and discount config api in rest_framework :
-    add_product api : http://127.0.0.1:8000/user/api/add_product/
-    sample json format for login api from :
+
+7. add_product api : http://127.0.0.1:8000/user/api/add_product/
+ 
+8. sample json format for add product api from postman or rest_framework browser:
        **{
            "name": "pineapple",
             "selling_price": 100,
@@ -43,7 +45,9 @@ In this step, you can give the username, email and password as you want.
             "product_category": "local fruits"
        }**
 
-    login api : http://127.0.0.1:8000/user/api/user_login
+9. login api : http://127.0.0.1:8000/user/api/user_login
+
+10.  sample json format for add product api from postman or rest_framework browser:
         **{
         "username": "mayyiaung91@gmail.com",
         "password": "admin"
