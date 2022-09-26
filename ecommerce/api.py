@@ -134,15 +134,31 @@ class AddProductView(generics.CreateAPIView):
                 request.data.get('name', ''), product_ser.errors))
             transaction.rollback()
             return Response(product_ser.errors, status=status.HTTP_400_BAD_REQUEST)
-        da = product_ser.save()
-        product = models.Product.objects.get(id=da.id)
+        pro = product_ser.save()
+        product = models.Product.objects.get(id=pro.id)
         product.save()
-
-        if not product_ser.is_valid():
-            logger.warn("[{0}]invalid Order, rollback - {1}".format(
-                request.data.get('customer', ''), product_ser.errors))
-            transaction.rollback()
         data = dict()
         data["msg"] = "Successfully Add Product!"
         # data["product_id"] = product.pk
+        return Response(data, status=200)
+
+class DiscountConfigView(generics.CreateAPIView):
+    # permission_classes = [AllowAny,]
+    authentication_class = (BasicAuthentication,)
+    queryset = ""
+    serializer_class = serializers.DiscountConfigSerializer  # you need serializer
+
+    def post(self, request, format=None):
+        transaction.atomic()
+        discount_ser = serializers.DiscountConfigSerializer(data=request.data)
+        if not discount_ser.is_valid():
+            logger.warn("[{0}]invalid Discount Information, rollback - {1}".format(
+                request.data.get('name', ''), discount_ser.errors))
+            transaction.rollback()
+            return Response(discount_ser.errors, status=status.HTTP_400_BAD_REQUEST)
+        dis = discount_ser.save()
+        discount_model = models.DiscountConfig.objects.get(id=dis.id)
+        discount_model.save()
+        data = dict()
+        data["msg"] = "Successfully Config Discount!"
         return Response(data, status=200)

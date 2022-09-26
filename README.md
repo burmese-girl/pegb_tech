@@ -36,8 +36,9 @@ In this step, you can give the username, email and password as you want.
 
 7. add_product api : http://127.0.0.1:8000/user/api/add_product/
  
-8. sample json format for add product api from postman or rest_framework browser:
-       **{
+8. sample json **request** format for add product api from postman or rest_framework browser:
+       
+    **{
            "name": "pineapple",
             "selling_price": 100,
             "weight": 10,
@@ -47,8 +48,24 @@ In this step, you can give the username, email and password as you want.
 
 9. login api : http://127.0.0.1:8000/user/api/user_login
 
-10.  sample json format for add product api from postman or rest_framework browser:
+10. sample json **request** format for add product api from postman or rest_framework browser:
+ 
         **{
-        "username": "mayyiaung91@gmail.com",
-        "password": "admin"
+             "username": "mayyiaung91@gmail.com",
+              "password": "admin"
         }**
+11.In AWS Deployment, we should have the separated settings.py  file for cloud server configuration for S3 bucket, RDBMS and EC2 instance.
+
+AWS_ACCESS_KEY_ID = 'AKIAZXEV7TTAYPT25OLI'
+AWS_SECRET_ACCESS_KEY = 'your_secret_kEy'
+AWS_STORAGE_BUCKET_NAME = 'your_s3_bucket'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'static'
+
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# Django storages - use in production
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'

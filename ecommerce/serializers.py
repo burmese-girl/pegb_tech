@@ -120,7 +120,6 @@ class AddProductSerializer(serializers.ModelSerializer):
     #     return obj.category_id.name
 
     def create(self, validate_data):
-        print("Type of ", validate_data)
         product = models.Product(**validate_data)
         product.uom="kg"
         product.save()
@@ -131,6 +130,26 @@ class AddProductSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("This field may not be blank.")
         return value
+
+
+class DiscountConfigSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DiscountConfig
+        fields = ('name', 'amount_percent')
+
+    def create(self, validate_data):
+        print("Data from client :: ", validate_data)
+        discount = models.DiscountConfig(**validate_data)
+        discount.save()
+        print("Discount Id",discount.id)
+        return discount
+
+    def validate_name(self, value):
+        if not value:
+            raise serializers.ValidationError("This field may not be blank.")
+        return value
+
 
 
 
