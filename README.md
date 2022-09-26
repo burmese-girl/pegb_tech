@@ -37,7 +37,8 @@ In this step, you can give the username, email and password as you want.
 7. add_product api : http://127.0.0.1:8000/user/api/add_product/
  
 8. sample json **request** format for add product api from postman or rest_framework browser:
-       
+      
+ 
     **{
            "name": "pineapple",
             "selling_price": 100,
