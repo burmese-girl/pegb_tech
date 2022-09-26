@@ -34,14 +34,14 @@ In this step, you can give the username, email and password as you want.
 
 6. There are login api, add_product api and discount config api in rest_framework :
 7. login api : http://127.0.0.1:8000/user/api/user_login
-8. sample json **request** format for login api from postman or rest_framework browser:
+8. sample json **request** format for login api from postman or rest_framework browser, and use **POST** method when you call api
  
          {
              "username": "mayyiaung91@gmail.com",
               "password": "admin"
          } 
 9. add_product api : http://127.0.0.1:8000/user/api/add_product
-10. sample json **request** format for add product api from postman or rest_framework browser:       
+10. sample json **request** format for add product api from postman or rest_framework browser, and use **POST** method when you call api       
           
         {
               "name": "pineapple",
@@ -53,14 +53,15 @@ In this step, you can give the username, email and password as you want.
  
 
 11. discount_config api : http://127.0.0.1:8000/user/api/discount_config  
-12. sample json request format for discount_config api
+12. sample json request format for discount_config api, and use **POST** method when you call api
        
          {
                  "name": "Silver",
                  "amount_percent": 15
           }
+This is the sample test of discount_config api in postman.
+ ![img.png](img.png)
 
- 
 13. #For AWS Deployment in production , we should have the separated settings.py  file for cloud server configuration for S3 bucket, RDBMS and EC2 instance.
 
 AWS_ACCESS_KEY_ID = 'your_access_key'
