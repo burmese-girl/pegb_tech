@@ -54,10 +54,10 @@ In this step, you can give the username, email and password as you want.
              "username": "mayyiaung91@gmail.com",
               "password": "admin"
         }**
-11.In AWS Deployment, we should have the separated settings.py  file for cloud server configuration for S3 bucket, RDBMS and EC2 instance.
+11.For AWS Deployment in production , we should have the separated settings.py  file for cloud server configuration for S3 bucket, RDBMS and EC2 instance.
 
-AWS_ACCESS_KEY_ID = 'AKIAZXEV7TTAYPT25OLI'
-AWS_SECRET_ACCESS_KEY = 'your_secret_kEy'
+AWS_ACCESS_KEY_ID = 'your_access_key'
+AWS_SECRET_ACCESS_KEY = 'your_secret_key'
 AWS_STORAGE_BUCKET_NAME = 'your_s3_bucket'
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
@@ -69,3 +69,14 @@ STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # Django storages - use in production
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'your_rds_databas',
+        'USER': 'your_username',
+        'PASSWORD': 'your_password',
+        'HOST': 'awseb-e-dzbknmpkep-stack-awsebrdsdatabase-qbta3ehfdx05.cx2pjad2lw3a.ap-southeast-1.rds.amazonaws.com', #put your AWS rds endpoint here, this is the sample endpoint 
+        'PORT': '5432',
+    }
+}
