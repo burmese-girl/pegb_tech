@@ -221,6 +221,8 @@ class ActivateAccount(View):
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
             user.userprofile.email_confirmed = True
+            user.userprofile.active_user = True
+            user.userprofile.save()
             user.save()
             auth_login(request, user)
             messages.success(request, 'Your account have been confirmed.')
