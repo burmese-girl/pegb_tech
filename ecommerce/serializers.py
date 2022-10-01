@@ -108,13 +108,15 @@ class LoginSerializer(serializers.ModelSerializer):
 
         return data
 
-
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model =models.ProductCategory
+        fields = ('name','complete_name')
 class AddProductSerializer(serializers.ModelSerializer):
-    # product_category = serializers.SerializerMethodField()
-
+    product_category = ProductCategorySerializer()
     class Meta:
         model = models.Product
-        fields = ('name', 'selling_price', 'weight', 'quantity')
+        fields = ('name', 'selling_price', 'weight', 'quantity','product_category')
 
     # def get_product_category(self, obj):
     #     return obj.category_id.name
@@ -122,14 +124,10 @@ class AddProductSerializer(serializers.ModelSerializer):
     def create(self, validate_data):
         product = models.Product(**validate_data)
         product.uom="kg"
+        product.currency="usd"
         product.save()
         print(product.id)
         return product
-
-    def validate_name(self, value):
-        if not value:
-            raise serializers.ValidationError("This field may not be blank.")
-        return value
 
 
 class DiscountConfigSerializer(serializers.ModelSerializer):

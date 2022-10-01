@@ -44,6 +44,8 @@ def index(request):
     #     return HttpResponseRedirect(reverse('user:login'))
     product_list = models.Product.objects.filter(is_sale=True)
     category_obj = models.ProductCategory.objects.all()
+    frozen_foods = []
+    fresh_produce = []
     computers = home_appliances = noddles = seafood = bags = rice = fruits = oil = general = categ_list = []
     for categ in category_obj:
         categ_list.append(categ)
@@ -51,25 +53,28 @@ def index(request):
     for prod in product_list:
         if prod.category_id.name == "frozen_foods":
             categ_id = prod.category_id.id
-            frozen_foods = models.Product.objects.filter(is_sale=True, category_id=categ_id)[:4]
+            frozen_foods = models.Product.objects.filter(
+                is_sale=True, category_id=categ_id)[:4]
             # computers.append(prod)
         elif prod.category_id.name == 'fresh_produce':
             categ_id = prod.category_id.id
-            fresh_produce = models.Product.objects.filter(is_sale=True, category_id=categ_id)[:4]
+            fresh_produce = models.Product.objects.filter(
+                is_sale=True, category_id=categ_id)[:4]
 
         else:
             general.append(prod)
 
     if 'btn-search' in request.POST:
         search_input = request.POST.get('search')
-        product_list = models.Product.objects.filter(name__icontains=search_input, is_sale=True)
+        product_list = models.Product.objects.filter(
+            name__icontains=search_input, is_sale=True)
         print("****** Item Count : ", len(product_list))
         count = len(product_list)
         return render(request, 'product_search.html',
                       {'product_list': product_list, 'count': count, 'search_item': search_input})
 
     return render(request, 'products.html',
-                  {'frozen_foods': frozen_foods, 'fresh_produce': fresh_produce,'categ_list': categ_list,})
+                  {'frozen_foods': frozen_foods, 'fresh_produce': fresh_produce, 'categ_list': categ_list, })
 
 
 def login(request):
@@ -85,7 +90,7 @@ def login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(username=username, password=password)
-        print ("User login ::::",user)
+        print("User login ::::", user)
 
         if user is not None:
             if user.userprofile.active_user:
@@ -102,7 +107,6 @@ def login(request):
             return HttpResponse(html)
 
         return HttpResponseRedirect(reverse('user:profile'))
-
 
     return render(request, "login.html", {
         'form': form,
@@ -186,7 +190,8 @@ def register(request):
         recipient_list = [user.email, ]
         send_mail(subject, message, email_from, recipient_list)
         context = data
-        messages.success(request, 'Please Confirm your email to complete registration.')
+        messages.success(
+            request, 'Please Confirm your email to complete registration.')
         return render(request, 'email_confirmation.html', context)
 
     except ValueError:
@@ -228,7 +233,8 @@ class ActivateAccount(View):
             messages.success(request, 'Your account have been confirmed.')
             return HttpResponseRedirect(reverse("user:profile"))
         else:
-            messages.warning(request, 'The confirmation link was invalid, possibly because it has already been used.')
+            messages.warning(
+                request, 'The confirmation link was invalid, possibly because it has already been used.')
             return HttpResponseRedirect(reverse(settings.LOGIN_URL))
 
 
@@ -236,9 +242,12 @@ def product_category(request, *args, **kwargs):
     print("** Product Category **")
     if request.method != 'POST':
         if kwargs and 'pk' in kwargs:
-            product_list = models.Product.objects.filter(is_sale=True, category_id=kwargs['pk'])
-            category_name = models.ProductCategory.objects.filter(id=kwargs['pk'])
-            if category_name: category_name = category_name[0].complete_name
+            product_list = models.Product.objects.filter(
+                is_sale=True, category_id=kwargs['pk'])
+            category_name = models.ProductCategory.objects.filter(
+                id=kwargs['pk'])
+            if category_name:
+                category_name = category_name[0].complete_name
             if product_list:
                 return render(request, 'product_categories.html',
                               {'product_list': product_list, 'category_name': category_name})
@@ -250,7 +259,8 @@ def product_details(request, *args, **kwargs):
     print(" Product details")
     if request.method != 'POST':
         if kwargs and 'pk' in kwargs:
-            product_detail = models.Product.objects.filter(is_sale=True, id=kwargs['pk'])
+            product_detail = models.Product.objects.filter(
+                is_sale=True, id=kwargs['pk'])
             qty = 1
             if product_detail:
                 return render(request, 'product_details.html', {'product': product_detail[0], 'qty': qty, })
@@ -260,7 +270,8 @@ def product_details(request, *args, **kwargs):
     if request.method == 'POST':
         if 'btn-search' in request.POST:
             search_input = request.POST.get('search')
-            product_list = models.Product.objects.filter(name__icontains=search_input, is_sale=True)
+            product_list = models.Product.objects.filter(
+                name__icontains=search_input, is_sale=True)
             count = len(product_list)
             return render(request, 'product_search.html',
                           {'product_list': product_list, 'count': count, 'search_item': search_input})
@@ -280,13 +291,14 @@ class CartListView(generic.ListView):
 
 def order(request):
     form = forms.AuthenticateExtraForm(request)
-    if not request.user.is_authenticated :
+    if not request.user.is_authenticated:
         return render(request, 'login.html', {'form': form})
 
     if request.method == "POST":
         order_form = forms.OrderConfirmedForm()
         if request.method == 'POST' and 'myfile' in request.FILES:
-            order_form = forms.OrderConfirmedForm(initial={'payment_type': 'Other_Payment'})
+            order_form = forms.OrderConfirmedForm(
+                initial={'payment_type': 'Other_Payment'})
             image_file = request.FILES['myfile']
             fs = FileSystemStorage()
             filename = fs.save(image_file.name, image_file)
@@ -304,8 +316,8 @@ class SuccessOrderView(generic.ListView):
     context_object_name = 'order'
     queryset = []
     template_name = 'order_success.html'
+
     def get(self, request):
-        print("\n  ******** SelfConfirmedOrder ******* {0} \n".format(self.queryset))
+        print(
+            "\n  ******** SelfConfirmedOrder ******* {0} \n".format(self.queryset))
         return render(request, 'order_success.html', {'order': self.queryset})
-
-

@@ -127,16 +127,28 @@ class AddProductView(generics.CreateAPIView):
         prod_data = {'name': request.data["name"], 'selling_price': request.data["selling_price"],
                      'weight': request.data["weight"],
                      'quantity': request.data["quantity"]}
-        product_ser = serializers.AddProductSerializer(data=prod_data)
+        product_ser = serializers.AddProductSerializer(data=request.data, many=True)
+
+        name = request.data["product_category"]["name"]
+        complete_name = request.data["product_category"]["complete_name"]
+        product_category, created = models.ProductCategory.objects.get_or_create( name=name, complete_name=complete_name)
+        update_items = {'name': product_category.name, 'complete_name': product_category.complete_name}
+        productcateg_ser = serializers.ProductCategorySerializer(product_category, data=update_items)
+        if not productcateg_ser.is_valid():
+            logger.warn("[{0}] invalid product category, rollback - {1}".format(request.data.get('product_category', ''),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             productcateg_ser.errors))
+            transaction.rollback()
+            return Response(productcateg_ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
         if not product_ser.is_valid():
-            logger.warn("[{0}]invalid Order, rollback - {1}".format(
+            logger.warn("[{0}]invalid Product, rollback - {1}".format(
                 request.data.get('name', ''), product_ser.errors))
             transaction.rollback()
             return Response(product_ser.errors, status=status.HTTP_400_BAD_REQUEST)
         pro = product_ser.save()
         product = models.Product.objects.get(id=pro.id)
         product.save()
+
         data = dict()
         data["msg"] = "Successfully Add Product!"
         # data["product_id"] = product.pk

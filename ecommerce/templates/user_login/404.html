@@ -1,0 +1,25 @@
+{% extends "user_login/base.html"%}
+{% load i18n %}
+
+{% load static %}
+{% load bootstrap %}
+{% block title %}
+	{% trans "Not Found" %}
+{% endblock %}
+{% block body %}
+<body>
+    <div class="container">
+         <div class="col-md-12 col-sm-12 col-xs-12 pad-top-bottom-10 main-header" style="margin-bottom: 15px;">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <img class="img-login" src="/static/pegb/images/logo.png"></img>
+               <div class="company-font"> Not Found >></div>
+            </div>
+        </div>
+        <h2 style="padding-top:50px;">Not Found</h2>
+        <p>The product you are looking is not found.</p>
+
+        <p><a href="javascript:history.go(-1)">Go back</a></p>
+    </div>
+</body>
+
+{% endblock %}
