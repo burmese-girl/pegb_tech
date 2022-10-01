@@ -33,7 +33,7 @@ If you don't want to use super user for testing, please create normal user with 
 
 In this step, you can give the username, email and password as you want.
 
-6.  There are login api, add_product api and discount config api in rest_framework. Please use your basic authentication for add_product and discount_config api : username=mayyiaung91@gmail.com and password= admin for test else you can also create your own account too.
+6.  There are login api, add_product api and discount config api in rest_framework. Please use your basic authentication for add_product and discount_config api : username=admin and password= admin for test else you can also create your own account too.
 7.  login api : your_domain:8000/user/api/user_login/
 8.  sample json **request** format for login api from postman or rest_framework browser, and use **POST** method when you call api
 
