@@ -53,7 +53,7 @@ In this step, you can give the username, email and password as you want.
                "product_category": "local fruits"
           }
 
-11. discount_config api : http://127.0.0.1:8000/user/api/discount_config/
+11. discount_config api : your_domain:8000/user/api/discount_config/
 12. sample json request format for discount_config api, and use **POST** method when you call api.
 
              {
@@ -78,7 +78,7 @@ AWS_LOCATION = 'static'
 STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-# Django storages - use in production
+#Django storages - use in production
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
